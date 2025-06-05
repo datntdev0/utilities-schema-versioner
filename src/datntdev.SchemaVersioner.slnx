@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="datntdev.SchemaVersioner.Cli/datntdev.SchemaVersioner.Cli.csproj" Id="b25522f5-c63f-4ce9-a155-80f2c03c05e8" />
+  <Project Path="datntdev.SchemaVersioner.Tests/datntdev.SchemaVersioner.Tests.csproj" />
   <Project Path="datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj" />
 </Solution>
