@@ -24,4 +24,10 @@
 		<Using Include="Xunit" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="Loaders\Migrations\**\*" CopyToOutputDirectory="Always" />
+		<None Include="Loaders\Repeatable\**\*" CopyToOutputDirectory="Always" />
+		<None Include="Loaders\Snapshots\**\*" CopyToOutputDirectory="Always" />
+	</ItemGroup>
+
 </Project>

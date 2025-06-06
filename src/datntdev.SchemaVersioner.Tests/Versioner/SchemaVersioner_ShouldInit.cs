@@ -1,6 +1,6 @@
 ﻿using datntdev.SchemaVersioner.Tests.Fixtures;
 
-namespace datntdev.SchemaVersioner.Tests
+namespace datntdev.SchemaVersioner.Tests.Versioner
 {
     public class SchemaVersioner_ShouldInit : SchemaVersionerFixture
     {

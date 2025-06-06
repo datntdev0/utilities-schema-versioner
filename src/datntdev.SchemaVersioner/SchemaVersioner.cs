@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("datntdev.SchemaVersioner.Tests")]
 
 namespace datntdev.SchemaVersioner
 {
