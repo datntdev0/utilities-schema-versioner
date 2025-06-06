@@ -4,11 +4,12 @@ using System.Linq;
 
 namespace datntdev.SchemaVersioner.Loaders
 {
-    internal class MigrationLoader
+    internal class MigrationLoader()
     {
-        public Migration[] Load(Models.Configuration.Settings settings) 
+        public Migration[] Load(Settings settings)
         {
             return settings.MigrationPaths
+                .Where(Directory.Exists)
                 .SelectMany(x => Directory.GetFiles(x, "*.sql", SearchOption.AllDirectories))
                 .Select(x => ParseMigration(Path.GetFullPath(x)))
                 .ToArray();
@@ -32,7 +33,7 @@ namespace datntdev.SchemaVersioner.Loaders
             return new Migration()
             {
                 Type = type,
-                Version = version ,
+                Version = version,
                 Description = description,
                 FilePath = filePath,
             };

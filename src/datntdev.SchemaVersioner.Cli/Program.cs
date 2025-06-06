@@ -7,18 +7,13 @@ namespace datntdev.SchemaVersioner.Cli
         static void Main(string[] args)
         {
             using var factory = LoggerFactory.Create(ConfigureConsoleLogger);
-            var logger = factory.CreateLogger("SchemaVersioner.Cli");
+            var logger = factory.CreateLogger("");
 
-            var versioner = new SchemaVersioner(logger);
-            if (args.Length == 0)
-            {
-                logger.LogError("No command provided. Available commands: init, upgrade, downgrade, validate, repair, snapshot.");
-                return;
-            }
+            var versioner = new SchemaVersioner(logger, ArgParser.FromArgs(args));
 
             using (logger.BeginScope(nameof(SchemaVersioner)))
             {
-                switch (args[0].ToLower())
+                switch (args.LastOrDefault()?.ToLower())
                 {
                     case "init":
                         versioner.Init();
@@ -37,6 +32,9 @@ namespace datntdev.SchemaVersioner.Cli
                         break;
                     case "snapshot":
                         versioner.Snapshot();
+                        break;
+                    case null:
+                        logger.LogError("No command provided. Available commands: init, upgrade, downgrade, validate, repair, snapshot.");
                         break;
                     default:
                         logger.LogError("Unknown command. Available commands: init, upgrade, downgrade, validate, repair, snapshot.");

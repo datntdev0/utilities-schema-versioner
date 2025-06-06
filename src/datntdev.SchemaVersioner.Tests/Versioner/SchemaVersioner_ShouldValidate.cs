@@ -3,10 +3,10 @@ using datntdev.SchemaVersioner.Tests.Fixtures;
 
 namespace datntdev.SchemaVersioner.Tests.Versioner
 {
-    public class SchemaVersioner_ShouldInit : SchemaVersionerFixture
+    public class SchemaVersioner_ShouldValidate : SchemaVersionerFixture
     {
         [Fact]
-        public void ShouldInit_Successfully()
+        public void ShouldValidate_Successfully()
         {
             // Arrange
             var settings = new Settings()
@@ -15,7 +15,7 @@ namespace datntdev.SchemaVersioner.Tests.Versioner
             };
 
             // Act
-            GetSchemaVersioner(settings).Init();
+            GetSchemaVersioner(settings).Validate();
         }
     }
 }

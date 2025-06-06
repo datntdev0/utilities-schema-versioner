@@ -1,6 +1,6 @@
-﻿namespace datntdev.SchemaVersioner.Models.Configuration
+﻿namespace datntdev.SchemaVersioner.Models
 {
-    internal class Settings
+    public class Settings
     {
         public string MigrationTable { get; set; } = "schema_versioner_migrations";
         public string[] MigrationPaths { get; set; } = ["Migrations"];

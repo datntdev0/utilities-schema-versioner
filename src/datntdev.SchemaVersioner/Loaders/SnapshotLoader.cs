@@ -6,9 +6,10 @@ namespace datntdev.SchemaVersioner.Loaders
 {
     internal class SnapshotLoader
     {
-        public Snapshot[] Load(Models.Configuration.Settings settings)
+        public Snapshot[] Load(Settings settings)
         {
             return settings.SnapshotPaths
+                .Where(Directory.Exists)
                 .SelectMany(x => Directory.GetFiles(x, "*.sql", SearchOption.AllDirectories))
                 .Select(x => ParseSnapshot(Path.GetFullPath(x)))
                 .ToArray();

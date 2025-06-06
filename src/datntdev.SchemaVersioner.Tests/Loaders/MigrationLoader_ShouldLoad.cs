@@ -1,5 +1,5 @@
 ﻿using datntdev.SchemaVersioner.Loaders;
-using datntdev.SchemaVersioner.Models.Configuration;
+using datntdev.SchemaVersioner.Models;
 
 namespace datntdev.SchemaVersioner.Tests.Loaders
 {
