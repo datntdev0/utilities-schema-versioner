@@ -5,14 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
-    internal class SnapshotCommand(ILogger logger) : BaseCommand(logger), ICommand
+    internal class SnapshotCommand(IConnector connector, ILogger logger) : BaseCommand(connector, logger), ICommand
     {
         private readonly SnapshotLoader _loader = new();
 
         public CommandOutput Execute(Settings settings)
         {
             var snapshots = _loader.Load(settings);
-            return new();
+            return new(new CommandOutputSnapshot());
         }
 
         public void PrintResult(CommandOutput output)

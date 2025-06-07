@@ -1,4 +1,5 @@
 ﻿using datntdev.SchemaVersioner.Commands;
+using datntdev.SchemaVersioner.Helpers;
 using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
 using Microsoft.Extensions.Logging;
@@ -53,17 +54,21 @@ namespace datntdev.SchemaVersioner
             command.PrintResult(command.Execute(settings));
         }
 
-
-        private ICommand GetCommand(CommandType commandType) => commandType switch
+        private ICommand GetCommand(CommandType commandType)
         {
-            CommandType.Info => new InfoCommand(logger),
-            CommandType.Init => new InitCommand(logger),
-            CommandType.Upgrade => new UpgradeCommand(logger),
-            CommandType.Downgrade => new DowngradeCommand(logger),
-            CommandType.Validate => new ValidateCommand(logger),
-            CommandType.Repair => new RepairCommand(logger),
-            CommandType.Snapshot => new SnapshotCommand(logger),
-            _ => throw new NotSupportedException($"Command type {commandType} is not supported.")
-        };
+            var connector = ConnectorFactory.CreateConnector(logger, default);
+
+            return commandType switch
+            {
+                CommandType.Info => new InfoCommand(connector, logger),
+                CommandType.Init => new InitCommand(connector, logger),
+                CommandType.Upgrade => new UpgradeCommand(connector, logger),
+                CommandType.Downgrade => new DowngradeCommand(connector, logger),
+                CommandType.Validate => new ValidateCommand(connector, logger),
+                CommandType.Repair => new RepairCommand(connector, logger),
+                CommandType.Snapshot => new SnapshotCommand(connector, logger),
+                _ => throw new NotSupportedException($"Command type {commandType} is not supported.")
+            };
+        }
     }
 }

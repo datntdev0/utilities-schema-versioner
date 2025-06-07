@@ -5,14 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
-    internal class UpgradeCommand(ILogger logger) : BaseCommand(logger), ICommand
+    internal class UpgradeCommand(IConnector connector, ILogger logger) : BaseCommand(connector, logger), ICommand
     {
         private readonly MigrationLoader _loader = new();
 
         public CommandOutput Execute(Settings settings)
         {
             var migrations = _loader.Load(settings);
-            return new();
+            return new(new CommandOutputUpgrade());
         }
 
         public void PrintResult(CommandOutput output)

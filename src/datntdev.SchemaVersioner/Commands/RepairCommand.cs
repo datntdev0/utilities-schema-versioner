@@ -5,14 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
-    internal class RepairCommand(ILogger logger) : BaseCommand(logger), ICommand
+    internal class RepairCommand(IConnector connector, ILogger logger) : BaseCommand(connector, logger), ICommand
     {
         private readonly MigrationLoader _loader = new();
 
         public CommandOutput Execute(Settings settings)
         {
             var migrations = _loader.Load(settings);
-            return new();
+            return new(new CommandOutputRepair());
         }
 
         public void PrintResult(CommandOutput output)
