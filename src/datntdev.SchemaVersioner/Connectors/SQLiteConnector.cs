@@ -5,10 +5,9 @@ using System.Data;
 
 namespace datntdev.SchemaVersioner.Connectors
 {
-    internal class SQLiteConnector(ILogger logger, IDbConnection dbConnection)
-        : BaseConnector(logger, dbConnection)
+    internal class SQLiteConnector(SchemaVersionerContext context) : BaseConnector(context), IConnector
     {
-        public override DbEngineType DbEngineType => DbEngineType.SQLite;
+        public DbEngineType DbEngineType => DbEngineType.SQLite;
 
         protected override string SQL_CheckVersion => @"
             SELECT COUNT(*) FROM (SELECT sqlite_version() AS _VERSION) AS t";

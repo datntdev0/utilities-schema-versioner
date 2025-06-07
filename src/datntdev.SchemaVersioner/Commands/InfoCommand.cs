@@ -4,8 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
-    internal class InfoCommand(IConnector connector, IDbEngine dbEngine, ILogger logger) 
-        : BaseCommand(connector, dbEngine, logger), ICommand
+    internal class InfoCommand(SchemaVersionerContext context) : BaseCommand(context), ICommand 
     {
         public CommandOutput Execute(Settings settings)
         {

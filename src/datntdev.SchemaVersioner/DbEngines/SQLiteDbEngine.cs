@@ -1,10 +1,9 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
-using Microsoft.Extensions.Logging;
+using datntdev.SchemaVersioner.Models;
 
 namespace datntdev.SchemaVersioner.DbEngines
 {
-    internal class SQLiteDbEngine(BaseConnector connector, ILogger logger) 
-        : BaseDbEngine(connector, logger), IDbEngine
+    internal class SQLiteDbEngine(SchemaVersionerContext context) : BaseDbEngine(context), IDbEngine
     {
     }
 }

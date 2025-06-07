@@ -1,9 +1,7 @@
-﻿using datntdev.SchemaVersioner.Commands;
-using datntdev.SchemaVersioner.Helpers;
+﻿using datntdev.SchemaVersioner.Helpers;
 using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Data;
 using System.Runtime.CompilerServices;
 using CommandType = datntdev.SchemaVersioner.Models.CommandType;
@@ -57,23 +55,7 @@ namespace datntdev.SchemaVersioner
         }
 
         private ICommand GetCommand(CommandType commandType)
-        {
-            var connector = Factory.CreateConnector(logger, connection);
-            var dbEngine = Factory.CreateDbEngine(logger, connector);
-
-            ICommand command = commandType switch
-            {
-                CommandType.Info => new InfoCommand(connector, dbEngine, logger),
-                CommandType.Init => new InitCommand(connector, dbEngine, logger),
-                CommandType.Upgrade => new UpgradeCommand(connector, dbEngine, logger),
-                CommandType.Downgrade => new DowngradeCommand(connector, dbEngine, logger),
-                CommandType.Validate => new ValidateCommand(connector, dbEngine, logger),
-                CommandType.Repair => new RepairCommand(connector, dbEngine, logger),
-                CommandType.Snapshot => new SnapshotCommand(connector, dbEngine, logger),
-                _ => throw new NotSupportedException($"Command type {commandType} is not supported.")
-            };
-
-            return command;
-        }
+            => Factory.CreateCommand(commandType,
+                Factory.CreateContext(connection, logger, settings));
     }
 }

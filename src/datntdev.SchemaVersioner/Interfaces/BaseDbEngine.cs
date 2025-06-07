@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using datntdev.SchemaVersioner.Models;
 
 namespace datntdev.SchemaVersioner.Interfaces
 {
-    internal class BaseDbEngine(BaseConnector connector, ILogger logger)
+    internal class BaseDbEngine(SchemaVersionerContext context)
     {
-        protected readonly BaseConnector _connector = connector;
-        protected readonly ILogger _logger = logger;
+        protected readonly IConnector _connector = context.Connector;
+        protected readonly IConnector _logger = context.Connector;
     }
 }

@@ -5,8 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
-    internal class SnapshotCommand(IConnector connector, IDbEngine dbEngine, ILogger logger)
-        : BaseCommand(connector, dbEngine, logger), ICommand
+    internal class SnapshotCommand(SchemaVersionerContext context) : BaseCommand(context), ICommand
     {
         private readonly SnapshotLoader _loader = new();
 

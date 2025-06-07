@@ -1,14 +1,11 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
-using Microsoft.Extensions.Logging;
-using System.Data;
 
 namespace datntdev.SchemaVersioner.Connectors
 {
-    internal class MsSQLConnector(ILogger logger, IDbConnection dbConnection)
-        : BaseConnector(logger, dbConnection)
+    internal class MsSQLConnector(SchemaVersionerContext context) : BaseConnector(context), IConnector
     {
-        public override DbEngineType DbEngineType => DbEngineType.MsSQL;
+        public DbEngineType DbEngineType => DbEngineType.MsSQL;
 
         protected override string SQL_CheckVersion => @"
             SELECT COUNT(*)

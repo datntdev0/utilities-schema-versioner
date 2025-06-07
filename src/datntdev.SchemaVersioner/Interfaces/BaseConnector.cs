@@ -6,13 +6,11 @@ using System.Data;
 
 namespace datntdev.SchemaVersioner.Interfaces
 {
-    internal abstract class BaseConnector(ILogger logger, IDbConnection dbConnection) : IConnector
+    internal abstract class BaseConnector(SchemaVersionerContext context)
     {
-        protected readonly ILogger _logger = logger;
+        protected readonly ILogger _logger = context.Logger;
 
-        public readonly IDbConnection DbConnection = dbConnection;
-
-        public abstract DbEngineType DbEngineType { get; }
+        public IDbConnection DbConnection => context.DbConnection;
 
         protected abstract string SQL_CheckVersion { get; }
         protected abstract string SQL_GetVersion { get; }
