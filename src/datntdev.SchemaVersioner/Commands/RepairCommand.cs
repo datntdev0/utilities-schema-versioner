@@ -5,7 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
-    internal class RepairCommand(IConnector connector, ILogger logger) : BaseCommand(connector, logger), ICommand
+    internal class RepairCommand(IConnector connector, ILogger logger)
+        : BaseCommand(connector, logger), ICommand
     {
         private readonly MigrationLoader _loader = new();
 

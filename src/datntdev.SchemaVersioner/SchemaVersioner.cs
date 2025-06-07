@@ -4,13 +4,15 @@ using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Data;
 using System.Runtime.CompilerServices;
+using CommandType = datntdev.SchemaVersioner.Models.CommandType;
 
 [assembly: InternalsVisibleTo("datntdev.SchemaVersioner.Tests")]
 
 namespace datntdev.SchemaVersioner
 {
-    public class SchemaVersioner(ILogger logger, Settings settings)
+    public class SchemaVersioner(IDbConnection connection, ILogger logger, Settings settings)
     {
         public void Info()
         {
@@ -56,9 +58,9 @@ namespace datntdev.SchemaVersioner
 
         private ICommand GetCommand(CommandType commandType)
         {
-            var connector = ConnectorFactory.CreateConnector(logger, default);
+            var connector = ConnectorFactory.CreateConnector(logger, connection);
 
-            return commandType switch
+            ICommand command = commandType switch
             {
                 CommandType.Info => new InfoCommand(connector, logger),
                 CommandType.Init => new InitCommand(connector, logger),
@@ -69,6 +71,8 @@ namespace datntdev.SchemaVersioner
                 CommandType.Snapshot => new SnapshotCommand(connector, logger),
                 _ => throw new NotSupportedException($"Command type {commandType} is not supported.")
             };
+
+            return command;
         }
     }
 }

@@ -7,14 +7,17 @@ namespace datntdev.SchemaVersioner.Cli
         static void Main(string[] args)
         {
             using var factory = LoggerFactory.Create(ConfigureConsoleLogger);
-            var logger = factory.CreateLogger("");
+            var logger = factory.CreateLogger(nameof(SchemaVersioner));
 
-            var versioner = new SchemaVersioner(logger, ArgParser.FromArgs(args));
+            var versioner = SchemaVersionerFactory.GetSchemaVersioner(args, logger);
 
             using (logger.BeginScope(nameof(SchemaVersioner)))
             {
                 switch (args.LastOrDefault()?.ToLower())
                 {
+                    case "info":
+                        versioner.Info();
+                        break;
                     case "init":
                         versioner.Init();
                         break;

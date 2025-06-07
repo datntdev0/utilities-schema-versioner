@@ -1,6 +1,6 @@
 ﻿namespace datntdev.SchemaVersioner.Interfaces
 {
-    internal interface IDbEnginee
+    internal interface IDbEngine
     {
     }
 }

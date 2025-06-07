@@ -28,4 +28,16 @@
         Procedure = 4,
         Function = 5,
     }
+
+    public enum DbEngineType
+    {
+        None,
+        MsSQL,
+        MySQL,
+        SQLite,
+        Oracle,
+        Snowflake,
+        PostgreSQL,
+        FabricWarehouse,
+    }
 }
