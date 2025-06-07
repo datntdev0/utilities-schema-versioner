@@ -6,14 +6,20 @@ using System.Data;
 
 namespace datntdev.SchemaVersioner.Interfaces
 {
-    internal abstract class BaseConnector(SchemaVersionerContext context)
+    internal abstract class BaseConnector : IDisposable
     {
-        protected readonly ILogger _logger = context.Logger;
-
-        public IDbConnection DbConnection => context.DbConnection;
+        protected readonly ILogger _logger;
+        protected readonly IDbConnection _dbConnection;
 
         protected abstract string SQL_CheckVersion { get; }
         protected abstract string SQL_GetVersion { get; }
+
+        public BaseConnector(SchemaVersionerContext context)
+        {
+            _logger = context.Logger;
+            _dbConnection = context.DbConnection;
+            OpenConnection();
+        }
 
         public bool IsSupported()
         {
@@ -33,17 +39,25 @@ namespace datntdev.SchemaVersioner.Interfaces
 
         public string GetVersion() => Execute(SQL_GetVersion, cmd => cmd.ExecuteScalar().ToString());
 
+        public void ExecuteNonQuery(string sql)
+        {
+            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
+
+            using var cmd = _dbConnection.CreateCommand();
+            cmd.CommandText = sql;
+
+            cmd.ExecuteNonQuery();
+        }
+
         public TResult ExecuteScalar<TResult>(string sql)
         {
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
 
-            OpenConnection();
-            using var cmd = DbConnection.CreateCommand();
+            using var cmd = _dbConnection.CreateCommand();
             cmd.CommandText = sql;
 
             var result = (TResult)cmd.ExecuteScalar();
 
-            CloseConnection();
             return result;
         }
 
@@ -52,46 +66,46 @@ namespace datntdev.SchemaVersioner.Interfaces
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
             ArgumentNullHelper.ThrowIfNull(query, nameof(query));
 
-            OpenConnection();
-
-            using var cmd = DbConnection.CreateCommand();
+            using var cmd = _dbConnection.CreateCommand();
             cmd.CommandText = sql;
 
             var result = query(cmd);
 
-            CloseConnection();
-
             return result;
         }
 
-        protected void OpenConnection()
+        public void OpenConnection()
         {
             try
             {
-                if (DbConnection.State == ConnectionState.Broken)
+                if (_dbConnection.State == ConnectionState.Broken)
                 {
-                    DbConnection.Close();
+                    _dbConnection.Close();
                 }
 
-                if (DbConnection.State != ConnectionState.Open)
+                if (_dbConnection.State != ConnectionState.Open)
                 {
-                    DbConnection.Open();
+                    _dbConnection.Open();
                 }
             }
             catch (Exception)
             {
-                _logger.LogError("Failed to open database connection: {0}", context.DbConnection.ConnectionString);
+                _logger.LogError("Failed to open database connection: {0}", _dbConnection.ConnectionString);
                 throw new ApplicationException("Failed to open database connection.");
             }
         }
 
-        protected void CloseConnection()
+        public void CloseConnection()
         {
-            if (DbConnection.State == ConnectionState.Open)
+            if (_dbConnection.State == ConnectionState.Open)
             {
-                DbConnection.Close();
+                _dbConnection.Close();
             }
         }
 
+        public void Dispose()
+        {
+            _dbConnection.Dispose();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using datntdev.SchemaVersioner.Models;
+﻿using datntdev.SchemaVersioner.Helpers;
+using datntdev.SchemaVersioner.Models;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -20,6 +21,26 @@ namespace datntdev.SchemaVersioner.Tests.Fixtures
         public void Dispose()
         {
             GC.SuppressFinalize(this);
+        }
+
+        protected TResult? ExecuteScalar<TResult>(string sql)
+        {
+            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
+            using var cmd = _dbConnection.CreateCommand();
+            cmd.CommandText = sql;
+            var result = (TResult?)cmd.ExecuteScalar();
+            return result;
+        }
+
+        protected DataTable ExecuteReader(string sql)
+        {
+            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
+            using var cmd = _dbConnection.CreateCommand();
+            cmd.CommandText = sql;
+            using var reader = cmd.ExecuteReader();
+            var dataTable = new DataTable();
+            dataTable.Load(reader);
+            return dataTable;
         }
     }
 }

@@ -10,6 +10,11 @@ namespace datntdev.SchemaVersioner.DbEngines
             throw new System.NotImplementedException();
         }
 
+        public void InsertMigrationRecord(Migration x)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public bool IsMetadataTableExists()
         {
             throw new System.NotImplementedException();

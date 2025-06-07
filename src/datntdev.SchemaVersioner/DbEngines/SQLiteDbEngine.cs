@@ -7,7 +7,36 @@ namespace datntdev.SchemaVersioner.DbEngines
     {
         public void CreateMetadataTable()
         {
-            throw new System.NotImplementedException();
+            var sql = @$"
+                CREATE TABLE [{_settings.MetadataTable}] 
+                ( 
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                    type INTEGER, 
+                    version VARCHAR(50), 
+                    description VARCHAR(200) NOT NULL, 
+                    checksum VARCHAR(32), 
+                    installed_by VARCHAR(100) NOT NULL, 
+                    installed_on TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')), 
+                    success BOOLEAN NOT NULL 
+                )";
+            _baseConnector.ExecuteNonQuery(sql);
+        }
+
+        public void InsertMigrationRecord(Migration migration)
+        {
+            var sql = $@"
+                INSERT INTO {_settings.MetadataTable} 
+                (type, version, description, checksum, installed_by, success) 
+                VALUES 
+                (
+                    {(int)migration.Type}, 
+                    '{migration.Version}', 
+                    '{migration.Description}', 
+                    '{migration.Checksum}', 
+                    '', 
+                    1
+                );";
+            _baseConnector.ExecuteNonQuery(sql);
         }
 
         public bool IsMetadataTableExists()
