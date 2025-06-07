@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
-    internal class ValidateCommand(IConnector connector, ILogger logger)
-        : BaseCommand(connector, logger), ICommand
+    internal class ValidateCommand(IConnector connector, IDbEngine dbEngine, ILogger logger)
+        : BaseCommand(connector, dbEngine, logger), ICommand
     {
         private readonly MigrationLoader _loader = new();
 

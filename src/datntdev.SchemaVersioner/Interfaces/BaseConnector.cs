@@ -9,9 +9,11 @@ namespace datntdev.SchemaVersioner.Interfaces
     internal abstract class BaseConnector(ILogger logger, IDbConnection dbConnection) : IConnector
     {
         protected readonly ILogger _logger = logger;
-        protected readonly IDbConnection _dbConnection = dbConnection;
 
-        protected abstract DbEngineType DbEngineType { get; }
+        public readonly IDbConnection DbConnection = dbConnection;
+
+        public abstract DbEngineType DbEngineType { get; }
+
         protected abstract string SQL_CheckVersion { get; }
         protected abstract string SQL_GetVersion { get; }
 
@@ -43,7 +45,7 @@ namespace datntdev.SchemaVersioner.Interfaces
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
             ArgumentNullHelper.ThrowIfNull(query, nameof(query));
 
-            using var cmd = _dbConnection.CreateCommand();
+            using var cmd = DbConnection.CreateCommand();
             cmd.CommandText = sql;
 
             var result = query(cmd);
@@ -57,14 +59,14 @@ namespace datntdev.SchemaVersioner.Interfaces
         {
             try
             {
-                if (_dbConnection.State == ConnectionState.Broken)
+                if (DbConnection.State == ConnectionState.Broken)
                 {
-                    _dbConnection.Close();
+                    DbConnection.Close();
                 }
 
-                if (_dbConnection.State != ConnectionState.Open)
+                if (DbConnection.State != ConnectionState.Open)
                 {
-                    _dbConnection.Open();
+                    DbConnection.Open();
                 }
             }
             catch (Exception)
@@ -75,9 +77,9 @@ namespace datntdev.SchemaVersioner.Interfaces
 
         protected void CloseConnection()
         {
-            if (_dbConnection.State == ConnectionState.Open)
+            if (DbConnection.State == ConnectionState.Open)
             {
-                _dbConnection.Close();
+                DbConnection.Close();
             }
         }
     }

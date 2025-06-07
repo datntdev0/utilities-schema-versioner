@@ -58,17 +58,18 @@ namespace datntdev.SchemaVersioner
 
         private ICommand GetCommand(CommandType commandType)
         {
-            var connector = ConnectorFactory.CreateConnector(logger, connection);
+            var connector = Factory.CreateConnector(logger, connection);
+            var dbEngine = Factory.CreateDbEngine(logger, connector);
 
             ICommand command = commandType switch
             {
-                CommandType.Info => new InfoCommand(connector, logger),
-                CommandType.Init => new InitCommand(connector, logger),
-                CommandType.Upgrade => new UpgradeCommand(connector, logger),
-                CommandType.Downgrade => new DowngradeCommand(connector, logger),
-                CommandType.Validate => new ValidateCommand(connector, logger),
-                CommandType.Repair => new RepairCommand(connector, logger),
-                CommandType.Snapshot => new SnapshotCommand(connector, logger),
+                CommandType.Info => new InfoCommand(connector, dbEngine, logger),
+                CommandType.Init => new InitCommand(connector, dbEngine, logger),
+                CommandType.Upgrade => new UpgradeCommand(connector, dbEngine, logger),
+                CommandType.Downgrade => new DowngradeCommand(connector, dbEngine, logger),
+                CommandType.Validate => new ValidateCommand(connector, dbEngine, logger),
+                CommandType.Repair => new RepairCommand(connector, dbEngine, logger),
+                CommandType.Snapshot => new SnapshotCommand(connector, dbEngine, logger),
                 _ => throw new NotSupportedException($"Command type {commandType} is not supported.")
             };
 

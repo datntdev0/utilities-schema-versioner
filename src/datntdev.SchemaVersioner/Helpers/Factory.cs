@@ -6,7 +6,7 @@ using System.Data;
 
 namespace datntdev.SchemaVersioner.Helpers
 {
-    internal class ConnectorFactory
+    internal static class Factory
     {
         public static BaseConnector CreateConnector(ILogger logger, IDbConnection dbConnection)
         {
@@ -26,6 +26,15 @@ namespace datntdev.SchemaVersioner.Helpers
                 }
             }
             throw new NotSupportedException($"Not found any database engine supporting your connection.");
+        }
+
+        public static IDbEngine CreateDbEngine(ILogger logger, BaseConnector connector)
+        {
+            return connector.DbEngineType switch
+            {
+                DbEngineType.SQLite => new DbEngines.SQLiteDbEngine(connector, logger),
+                _ => throw new NotSupportedException($"Not found any database engine supporting your connection."),
+            };
         }
     }
 }

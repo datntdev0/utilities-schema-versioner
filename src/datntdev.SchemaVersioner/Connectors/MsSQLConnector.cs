@@ -8,7 +8,7 @@ namespace datntdev.SchemaVersioner.Connectors
     internal class MsSQLConnector(ILogger logger, IDbConnection dbConnection)
         : BaseConnector(logger, dbConnection)
     {
-        protected override DbEngineType DbEngineType => DbEngineType.MsSQL;
+        public override DbEngineType DbEngineType => DbEngineType.MsSQL;
 
         protected override string SQL_CheckVersion => @"
             SELECT COUNT(*)

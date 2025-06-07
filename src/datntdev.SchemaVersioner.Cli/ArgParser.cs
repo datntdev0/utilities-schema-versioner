@@ -9,7 +9,7 @@ namespace datntdev.SchemaVersioner.Cli
             var settings = new Settings();
             var dict = new Dictionary<string, Action<string>>
             {
-                ["--migration-table"] = val => settings.MigrationTable = val,
+                ["--migration-table"] = val => settings.MetadataTable = val,
                 ["--migration-paths"] = val => settings.MigrationPaths = val.Split(';', ','),
                 ["--snapshot-paths"] = val => settings.SnapshotPaths = val.Split(';', ',')
             };
@@ -41,8 +41,8 @@ namespace datntdev.SchemaVersioner.Cli
             {
                 ["--database-type"] = val => settings.DbEngineType = ParseDbEngineType(val),
                 ["--connection-string"] = val => settings.ConnectionString = val,
-                ["--migration-table"] = val => settings.MigrationTable = val,
-                ["--migration-table"] = val => settings.MigrationTable = val,
+                ["--migration-table"] = val => settings.MetadataTable = val,
+                ["--migration-table"] = val => settings.MetadataTable = val,
                 ["--migration-paths"] = val => settings.MigrationPaths = val.Split(';', ','),
                 ["--snapshot-paths"] = val => settings.SnapshotPaths = val.Split(';', ',')
             };
