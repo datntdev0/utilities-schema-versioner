@@ -1,7 +1,5 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
-using Microsoft.Extensions.Logging;
-using System.Data;
 
 namespace datntdev.SchemaVersioner.Connectors
 {

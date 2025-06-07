@@ -1,22 +1,21 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
-using datntdev.SchemaVersioner.Loaders;
 using datntdev.SchemaVersioner.Models;
-using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
     internal class UpgradeCommand(SchemaVersionerContext context) : BaseCommand(context), ICommand
     {
-        private readonly MigrationLoader _loader = new();
-
-        public CommandOutput Execute(Settings settings)
+        public CommandOutput Execute()
         {
-            var migrations = _loader.Load(settings);
-            return new(new CommandOutputUpgrade());
-        }
+            // Create metadata table if not exists
 
-        public void PrintResult(CommandOutput output)
-        {
+            // Load migration records from metadata table
+
+            // Load migration scripts from migration folders
+
+            // Determine and run pending upgrades to target version
+
+            return new CommandOutput<CommandOutputUpgrade>(new CommandOutputUpgrade());
         }
     }
 }

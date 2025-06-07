@@ -8,5 +8,6 @@ namespace datntdev.SchemaVersioner.Interfaces
         protected readonly IConnector _connector = context.Connector;
         protected readonly IDbEngine _dbEngine = context.DbEngine;
         protected readonly ILogger _logger = context.Logger;
+        protected readonly Settings _settings = context.Settings;
     }
 }

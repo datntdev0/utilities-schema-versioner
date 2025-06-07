@@ -2,5 +2,7 @@
 {
     internal interface IDbEngine
     {
+        bool IsMetadataTableExists();
+        void CreateMetadataTable();
     }
 }

@@ -1,22 +1,21 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
-using datntdev.SchemaVersioner.Loaders;
 using datntdev.SchemaVersioner.Models;
-using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
     internal class RepairCommand(SchemaVersionerContext context) : BaseCommand(context), ICommand
     {
-        private readonly MigrationLoader _loader = new();
-
-        public CommandOutput Execute(Settings settings)
+        public CommandOutput Execute()
         {
-            var migrations = _loader.Load(settings);
-            return new(new CommandOutputRepair());
-        }
+            // Create metadata table if not exists
 
-        public void PrintResult(CommandOutput output)
-        {
+            // Delete all migration records from metadata table
+
+            // Load migration scripts from migration folders
+
+            // Seed all migration records to metadata table
+
+            return new CommandOutput<CommandOutputRepair>(new CommandOutputRepair());
         }
     }
 }

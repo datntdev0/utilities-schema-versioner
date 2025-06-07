@@ -2,7 +2,7 @@
 {
     public class SettingsCli : Settings
     {
-        public DbEngineType DbEngineType { get; set; } = DbEngineType.SQLite;
+        public DbEngineType DbEngineType { get; set; } = DbEngineType.None;
         public string ConnectionString { get; set; } = string.Empty;
     }
 }

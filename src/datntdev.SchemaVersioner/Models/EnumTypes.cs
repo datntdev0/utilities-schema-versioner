@@ -2,16 +2,16 @@
 {
     internal enum CommandType
     {
-        Info = 0,
         Init = 1,
         Upgrade = 2,
         Downgrade = 3,
         Validate = 4,
         Repair = 5,
-        Snapshot = 6,
+        Erase = 6,
+        Snapshot = 7,
     }
 
-    internal enum MigrationType
+    public enum MigrationType
     {
         None = 0,
         Versioned = 1,

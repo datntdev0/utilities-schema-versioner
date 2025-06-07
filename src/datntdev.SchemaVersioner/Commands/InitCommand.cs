@@ -1,22 +1,23 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
-using datntdev.SchemaVersioner.Loaders;
 using datntdev.SchemaVersioner.Models;
-using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
     internal class InitCommand(SchemaVersionerContext context) : BaseCommand(context), ICommand
     {
-        private readonly SnapshotLoader _loader = new();
-
-        public CommandOutput Execute(Settings settings)
+        public CommandOutput Execute()
         {
-            var snapshots = _loader.Load(settings);
-            return new(new CommandOutputInit());
-        }
+            // Load schema snapshots from snapshot folders
 
-        public void PrintResult(CommandOutput output)
-        {
+            // Run all schema snapshots to init new database
+
+            // Create metadata table if not exists
+
+            // Load migrations scripts from migration folders
+
+            // Seed all migration records to metadata table
+
+            return new CommandOutput<CommandOutputInit>(new CommandOutputInit());
         }
     }
 }

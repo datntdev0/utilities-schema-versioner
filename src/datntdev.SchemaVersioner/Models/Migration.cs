@@ -2,7 +2,7 @@
 
 namespace datntdev.SchemaVersioner.Models
 {
-    internal class Migration
+    public class Migration
     {
         public MigrationType Type { get; set; } = MigrationType.None;
         public string Version { get; set; } = string.Empty;

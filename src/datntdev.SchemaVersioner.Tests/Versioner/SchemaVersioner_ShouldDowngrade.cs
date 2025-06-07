@@ -11,11 +11,13 @@ namespace datntdev.SchemaVersioner.Tests.Versioner
             // Arrange
             var settings = new Settings()
             {
-
             };
 
             // Act
-            GetSchemaVersioner(settings).Downgrade();
+            var output = GetSchemaVersioner(settings).Downgrade();
+
+            // Assert
+            Assert.NotNull(output.Data);
         }
     }
 }

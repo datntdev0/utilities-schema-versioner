@@ -31,17 +31,28 @@ namespace datntdev.SchemaVersioner.Interfaces
             }
         }
 
-        public string GetVersion()
+        public string GetVersion() => Execute(SQL_GetVersion, cmd => cmd.ExecuteScalar().ToString());
+
+        public TResult ExecuteScalar<TResult>(string sql)
         {
-            return Execute(SQL_GetVersion, cmd => cmd.ExecuteScalar().ToString());
+            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
+
+            OpenConnection();
+            using var cmd = DbConnection.CreateCommand();
+            cmd.CommandText = sql;
+
+            var result = (TResult)cmd.ExecuteScalar();
+
+            CloseConnection();
+            return result;
         }
 
-        protected TResult Execute<TResult>(string sql, Func<IDbCommand, TResult> query)
+        public TResult Execute<TResult>(string sql, Func<IDbCommand, TResult> query)
         {
-            OpenConnection();
-
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
             ArgumentNullHelper.ThrowIfNull(query, nameof(query));
+
+            OpenConnection();
 
             using var cmd = DbConnection.CreateCommand();
             cmd.CommandText = sql;
@@ -69,6 +80,7 @@ namespace datntdev.SchemaVersioner.Interfaces
             }
             catch (Exception)
             {
+                _logger.LogError("Failed to open database connection: {0}", context.DbConnection.ConnectionString);
                 throw new ApplicationException("Failed to open database connection.");
             }
         }
@@ -80,5 +92,6 @@ namespace datntdev.SchemaVersioner.Interfaces
                 DbConnection.Close();
             }
         }
+
     }
 }

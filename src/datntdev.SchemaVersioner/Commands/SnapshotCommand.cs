@@ -1,22 +1,25 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
-using datntdev.SchemaVersioner.Loaders;
 using datntdev.SchemaVersioner.Models;
-using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
     internal class SnapshotCommand(SchemaVersionerContext context) : BaseCommand(context), ICommand
     {
-        private readonly SnapshotLoader _loader = new();
-
-        public CommandOutput Execute(Settings settings)
+        public CommandOutput Execute()
         {
-            var snapshots = _loader.Load(settings);
-            return new(new CommandOutputSnapshot());
-        }
+            // Scan and generate DDL for all procedures
 
-        public void PrintResult(CommandOutput output)
-        {
+            // Scan and generate DDL for all functions
+
+            // Scan and generate DDL for all views
+
+            // Scan and generate DDL for all tables
+
+            // Scan and generate DDL for all schemas
+
+            // Create sql scripts for that all DDL
+
+            return new CommandOutput<CommandOutputSnapshot>(new CommandOutputSnapshot());
         }
     }
 }

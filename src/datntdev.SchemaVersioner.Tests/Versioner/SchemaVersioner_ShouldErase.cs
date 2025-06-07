@@ -3,19 +3,21 @@ using datntdev.SchemaVersioner.Tests.Fixtures;
 
 namespace datntdev.SchemaVersioner.Tests.Versioner
 {
-    public class SchemaVersioner_ShouldInfo : SchemaVersionerFixture
+    public class SchemaVersioner_ShouldErase : SchemaVersionerFixture
     {
         [Fact]
-        public void ShouldInfo_Successfully()
+        public void ShouldErase_Successfully()
         {
             // Arrange
             var settings = new Settings()
             {
-
             };
 
             // Act
-            GetSchemaVersioner(settings).Info();
+            var output = GetSchemaVersioner(settings).Erase();
+
+            // Assert
+            Assert.NotNull(output.Data);
         }
     }
 }

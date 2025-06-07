@@ -15,7 +15,10 @@ namespace datntdev.SchemaVersioner.Tests.Versioner
             };
 
             // Act
-            GetSchemaVersioner(settings).Snapshot();
+            var output = GetSchemaVersioner(settings).Snapshot();
+
+            // Assert
+            Assert.NotNull(output.Data);
         }
     }
 }

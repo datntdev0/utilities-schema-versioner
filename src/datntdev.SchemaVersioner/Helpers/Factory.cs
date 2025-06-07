@@ -15,12 +15,12 @@ namespace datntdev.SchemaVersioner.Helpers
         {
             ICommand command = commandType switch
             {
-                CommandType.Info => new InfoCommand(context),
                 CommandType.Init => new InitCommand(context),
                 CommandType.Upgrade => new UpgradeCommand(context),
                 CommandType.Downgrade => new DowngradeCommand(context),
                 CommandType.Validate => new ValidateCommand(context),
                 CommandType.Repair => new RepairCommand(context),
+                CommandType.Erase => new EraseCommand(context),
                 CommandType.Snapshot => new SnapshotCommand(context),
                 _ => throw new NotSupportedException($"Command type {commandType} is not supported.")
             };
