@@ -6,6 +6,8 @@ namespace datntdev.SchemaVersioner.Tests
 {
     public class SchemaVersioner_ShouldInit : SQLiteConnectionFixture
     {
+        protected override string SQLiteConnectionString => "Data Source=sqlite_init;Mode=Memory;Cache=Shared";
+
         [Fact]
         public void ShouldInit_1_Successfully()
         {
@@ -22,7 +24,7 @@ namespace datntdev.SchemaVersioner.Tests
             // Assert
             Assert.NotNull(output.Data);
             
-            var dataTable = ExecuteReader("SELECT * FROM sqlite_master").AsEnumerable();
+            var dataTable = ExecuteQuery("SELECT * FROM sqlite_master").AsEnumerable();
             Assert.Contains(dataTable, row =>
                 row.Field<string>("type") == "table"
                 && row.Field<string>("tbl_name") == "schema_versioner_migrations");
@@ -33,7 +35,7 @@ namespace datntdev.SchemaVersioner.Tests
                 row.Field<string>("type") == "table"
                 && row.Field<string>("tbl_name") == "Table2");
 
-            dataTable = ExecuteReader("SELECT * FROM schema_versioner_migrations").AsEnumerable();
+            dataTable = ExecuteQuery("SELECT * FROM schema_versioner_migrations").AsEnumerable();
             var firstMigration = dataTable.First(row =>
                 row.Field<string>("version") == "1.0.0"
                 && row.Field<string>("description") == "First migration");
@@ -50,8 +52,8 @@ namespace datntdev.SchemaVersioner.Tests
             // Arrange
             var settings = new Settings()
             {
-                SnapshotPaths = ["Loaders/Snapshots"],
-                MigrationPaths = ["Loaders/Migrations"],
+                SnapshotPaths = ["Resources/SQLite/Snapshots"],
+                MigrationPaths = ["Resources/SQLite/Migrations"],
             };
 
             // Act & Assert

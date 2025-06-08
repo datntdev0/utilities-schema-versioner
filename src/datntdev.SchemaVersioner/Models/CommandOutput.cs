@@ -1,4 +1,6 @@
-﻿namespace datntdev.SchemaVersioner.Models
+﻿using ConsoleTables;
+
+namespace datntdev.SchemaVersioner.Models
 {
     public class CommandOutput { }
 
@@ -29,7 +31,7 @@
 
     public class CommandOutputValidate
     {
-
+        public ConsoleTable ResultTable { get; set; } = default!;
     }
 
     public class CommandOutputRepair

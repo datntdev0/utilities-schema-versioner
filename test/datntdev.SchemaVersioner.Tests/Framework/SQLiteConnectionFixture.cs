@@ -32,7 +32,7 @@ namespace datntdev.SchemaVersioner.Tests.Framework
             GC.SuppressFinalize(this);
         }
 
-        protected DataTable ExecuteReader(string sql)
+        protected DataTable ExecuteQuery(string sql)
         {
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
             using var cmd = _dbConnection.CreateCommand();
@@ -41,6 +41,14 @@ namespace datntdev.SchemaVersioner.Tests.Framework
             var dataTable = new DataTable();
             dataTable.Load(reader);
             return dataTable;
+        }
+
+        protected void ExecuteNonQuery(string sql)
+        {
+            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
+            using var cmd = _dbConnection.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.ExecuteNonQuery();
         }
     }
 }

@@ -25,7 +25,7 @@ namespace datntdev.SchemaVersioner.Interfaces
         {
             try
             {
-                return Execute(SQL_CheckVersion, cmd => Convert.ToInt32(cmd.ExecuteScalar()) == 1);
+                return ExecuteScalar<long>(SQL_CheckVersion) == 1;
             }
             catch (ApplicationException)
             {
@@ -37,7 +37,21 @@ namespace datntdev.SchemaVersioner.Interfaces
             }
         }
 
-        public string GetVersion() => Execute(SQL_GetVersion, cmd => cmd.ExecuteScalar().ToString());
+        public string GetVersion() => ExecuteScalar<string>(SQL_GetVersion);
+
+        public DataTable ExecuteQuery(string sql)
+        {
+            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
+
+            using var cmd = _dbConnection.CreateCommand();
+            cmd.CommandText = sql;
+
+            using var reader = cmd.ExecuteReader();
+            var dataTable = new DataTable();
+            dataTable.Load(reader);
+
+            return dataTable;
+        }
 
         public void ExecuteNonQuery(string sql)
         {

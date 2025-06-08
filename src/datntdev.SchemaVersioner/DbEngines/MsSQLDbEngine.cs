@@ -10,6 +10,21 @@ namespace datntdev.SchemaVersioner.DbEngines
             throw new System.NotImplementedException();
         }
 
+        public void DropMetadataTable()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void EraseDatabase()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Migration[] GetMetadataTable()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void InsertMigrationRecord(Migration x)
         {
             throw new System.NotImplementedException();

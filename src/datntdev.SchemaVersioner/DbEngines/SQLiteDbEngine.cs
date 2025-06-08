@@ -1,5 +1,8 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
+using System;
+using System.Data;
+using System.Linq;
 
 namespace datntdev.SchemaVersioner.DbEngines
 {
@@ -22,6 +25,47 @@ namespace datntdev.SchemaVersioner.DbEngines
             _baseConnector.ExecuteNonQuery(sql);
         }
 
+        public void DropMetadataTable()
+        {
+            var sql = @$"DROP TABLE IF EXISTS [{_settings.MetadataTable}]";
+            _baseConnector.ExecuteNonQuery(sql);
+        }
+
+        public void EraseDatabase()
+        {
+            // Drop all views in the database
+            var getViewsSql = @"
+                SELECT name, type FROM sqlite_master 
+                WHERE (type = 'view' OR type = 'table') AND name <> 'sqlite_sequence';";
+
+            var dropSqls = _baseConnector.ExecuteQuery(getViewsSql).AsEnumerable()
+                .OrderBy(x => x.Field<string>("type"))
+                .Select(x => new { type = x.Field<string>("type"), name = x.Field<string>("name") })
+                .Select(x => $"DROP {x.type.ToUpper()} IF EXISTS [{x.name}]");
+
+            _baseConnector.ExecuteNonQuery(string.Join(";", dropSqls));
+        }
+
+        public Migration[] GetMetadataTable()
+        {
+            var sql = $@"
+                SELECT type, version, description, checksum, installed_by, installed_on, success 
+                FROM {_settings.MetadataTable} 
+                ORDER BY id ASC;";
+
+            var dataTable = _baseConnector.ExecuteQuery(sql);
+            return dataTable.AsEnumerable().Select(row => new Migration
+            {
+                Type = (MigrationType)row.Field<long>("type"),
+                Version = row.Field<string>("version"),
+                Description = row.Field<string>("description"),
+                Checksum = row.Field<string>("checksum"),
+                InstalledBy = row.Field<string>("installed_by"),
+                InstalledAt = DateTime.Parse(row.Field<string>("installed_on")),
+                IsSuccessful = row.Field<long>("success") == 1,
+            }).ToArray();
+        }
+
         public void InsertMigrationRecord(Migration migration)
         {
             var sql = $@"
@@ -32,7 +76,7 @@ namespace datntdev.SchemaVersioner.DbEngines
                     {(int)migration.Type}, 
                     '{migration.Version}', 
                     '{migration.Description}', 
-                    '{migration.Checksum}', 
+                    '{migration.ContentChecksum}', 
                     '', 
                     1
                 );";

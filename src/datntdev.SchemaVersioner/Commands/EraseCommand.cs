@@ -1,5 +1,6 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
+using Microsoft.Extensions.Logging;
 
 namespace datntdev.SchemaVersioner.Commands
 {
@@ -7,17 +8,8 @@ namespace datntdev.SchemaVersioner.Commands
     {
         public CommandOutput Execute()
         {
-            // Scan current database to get list of procedures
-
-            // Scan current database to get list of functions
-
-            // Scan current database to get list of views
-
-            // Scan current database to get list of tables
-
-            // Scan current database to get list of schemas
-
-            // Drop all procedures, functions, views, tables, and schemas
+            _logger.LogInformation("Erasing database...");
+            _dbEngine.EraseDatabase();
 
             return new CommandOutput<CommandOutputErase>(new CommandOutputErase());
         }

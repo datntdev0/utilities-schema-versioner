@@ -6,6 +6,9 @@ namespace datntdev.SchemaVersioner.Interfaces
     {
         bool IsMetadataTableExists();
         void CreateMetadataTable();
+        void DropMetadataTable();
+        Migration[] GetMetadataTable();
         void InsertMigrationRecord(Migration x);
+        void EraseDatabase();
     }
 }
