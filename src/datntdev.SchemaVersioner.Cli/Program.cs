@@ -2,47 +2,56 @@
 
 namespace datntdev.SchemaVersioner.Cli
 {
-    internal class Program
+    public class Program
     {
         private const string AvailableCommands = "Available commands: init, upgrade, downgrade, validate, repair, erase, snapshot.";
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             using var factory = LoggerFactory.Create(ConfigureConsoleLogger);
             var logger = factory.CreateLogger(nameof(SchemaVersioner));
 
-            var versioner = SchemaVersionerFactory.GetSchemaVersioner(args, logger);
+            var versioner = Factory.GetSchemaVersioner(args, logger);
 
-            switch (args.LastOrDefault()?.ToLower())
+            try
             {
-                case "init":
-                    versioner.Init();
-                    break;
-                case "upgrade":
-                    versioner.Upgrade();
-                    break;
-                case "downgrade":
-                    versioner.Downgrade();
-                    break;
-                case "validate":
-                    versioner.Validate();
-                    break;
-                case "repair":
-                    versioner.Repair();
-                    break;
-                case "erase":
-                    versioner.Erase();
-                    break;
-                case "snapshot":
-                    versioner.Snapshot();
-                    break;
-                case null:
-                    logger.LogError($"No command provided. {AvailableCommands}");
-                    break;
-                default:
-                    logger.LogError($"Unknown command. {AvailableCommands}");
-                    break;
+                switch (args.LastOrDefault()?.ToLower())
+                {
+                    case "init":
+                        versioner.Init();
+                        break;
+                    case "upgrade":
+                        versioner.Upgrade();
+                        break;
+                    case "downgrade":
+                        versioner.Downgrade();
+                        break;
+                    case "validate":
+                        versioner.Validate();
+                        break;
+                    case "repair":
+                        versioner.Repair();
+                        break;
+                    case "erase":
+                        versioner.Erase();
+                        break;
+                    case "snapshot":
+                        versioner.Snapshot();
+                        break;
+                    case null:
+                        logger.LogError($"No command provided. {AvailableCommands}");
+                        break;
+                    default:
+                        logger.LogError($"Unknown command. {AvailableCommands}");
+                        break;
+                }
             }
+            catch (Exception ex)
+            {
+                logger.LogError("An error occurred while executing the command: {Message}", ex.Message);
+                throw;
+            }
+            
         }
 
         private static void ConfigureConsoleLogger(ILoggingBuilder builder)

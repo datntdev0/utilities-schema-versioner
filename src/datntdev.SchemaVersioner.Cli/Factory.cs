@@ -6,7 +6,7 @@ using System.Data;
 
 namespace datntdev.SchemaVersioner.Cli
 {
-    internal static class SchemaVersionerFactory
+    internal static class Factory
     {
         public static SchemaVersioner GetSchemaVersioner(string[] args, ILogger logger)
         {

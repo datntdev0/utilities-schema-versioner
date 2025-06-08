@@ -1,9 +1,9 @@
 ﻿using datntdev.SchemaVersioner.Models;
-using datntdev.SchemaVersioner.Tests.Fixtures;
+using datntdev.SchemaVersioner.Tests.Framework;
 
-namespace datntdev.SchemaVersioner.Tests.Versioner
+namespace datntdev.SchemaVersioner.Tests
 {
-    public class SchemaVersioner_ShouldUpgrade : SchemaVersionerFixture
+    public class SchemaVersioner_ShouldUpgrade : SQLiteConnectionFixture
     {
         [Fact]
         public void ShouldUpgrade_Successfully()

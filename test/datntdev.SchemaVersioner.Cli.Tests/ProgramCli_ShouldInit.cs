@@ -1,29 +1,29 @@
-﻿using datntdev.SchemaVersioner.Models;
-using datntdev.SchemaVersioner.Tests.Fixtures;
+﻿using datntdev.SchemaVersioner.Tests.Framework;
 using System.Data;
 
-namespace datntdev.SchemaVersioner.Tests.Versioner
+namespace datntdev.SchemaVersioner.Cli.Tests
 {
-    public class SchemaVersioner_ShouldInit : SchemaVersionerFixture
+    public class ProgramCli_ShouldInit : SQLiteConnectionFixture
     {
+        protected override string SQLiteConnectionString => "Data Source=Resources/SQLite/database.db;Cache=Shared";
+
         [Fact]
-        public void ShouldInit_Successfully()
+        public void ShouldInit_1_Successfully()
         {
-            _dbConnection.Close(); // Close connection to reset database
-            
             // Arrange
-            var settings = new Settings()
+            var args = new string[]
             {
-                SnapshotPaths = ["Loaders/Snapshots"],
-                MigrationPaths = ["Loaders/Migrations"],
+                "--database-type", "sqlite",
+                "--connection-string", SQLiteConnectionString,
+                "--migration-paths", "Resources/SQLite/Migrations",
+                "--snapshot-paths", "Resources/SQLite/Snapshots",
+                "init",
             };
 
             // Act
-            var output = GetSchemaVersioner(settings).Init();
+            Program.Main(args);
 
             // Assert
-            Assert.NotNull(output.Data);
-            
             var dataTable = ExecuteReader("SELECT * FROM sqlite_master").AsEnumerable();
             Assert.Contains(dataTable, row =>
                 row.Field<string>("type") == "table"
@@ -47,20 +47,20 @@ namespace datntdev.SchemaVersioner.Tests.Versioner
         }
 
         [Fact]
-        public void ShouldInit_RisedException_WhenMetadataTableExists()
+        public void ShouldInit_2_RisedException_WhenMetadataTableExists()
         {
-            _dbConnection.Close(); // Close connection to reset database
-           
             // Arrange
-            var settings = new Settings()
+            var args = new string[]
             {
-                SnapshotPaths = ["Loaders/Snapshots"],
-                MigrationPaths = ["Loaders/Migrations"],
+                "--database-type", "sqlite",
+                "--connection-string", SQLiteConnectionString,
+                "--migration-paths", "Resources/SQLite/Migrations",
+                "--snapshot-paths", "Resources/SQLite/Snapshots",
+                "init",
             };
-            GetSchemaVersioner(settings).Init();
 
             // Act & Assert
-            var ex = Assert.Throws<InvalidOperationException>(() => GetSchemaVersioner(settings).Init());
+            var ex = Assert.Throws<InvalidOperationException>(() => Program.Main(args));
             Assert.Equal("Metadata table already exists. We only initialize for new database", ex.Message);
         }
     }

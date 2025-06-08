@@ -18,17 +18,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\datntdev.SchemaVersioner\datntdev.SchemaVersioner.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Using Include="Xunit" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Loaders\Migrations\**\*" CopyToOutputDirectory="Always" />
-		<None Include="Loaders\Repeatable\**\*" CopyToOutputDirectory="Always" />
-		<None Include="Loaders\Snapshots\**\*" CopyToOutputDirectory="Always" />
+		<None Include="Resources\**\*" CopyToOutputDirectory="Always" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\datntdev.SchemaVersioner\datntdev.SchemaVersioner.csproj" />
 	</ItemGroup>
 
 </Project>

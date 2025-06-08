@@ -5,13 +5,22 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Data;
 
-namespace datntdev.SchemaVersioner.Tests.Fixtures
+namespace datntdev.SchemaVersioner.Tests.Framework
 {
-    public class SchemaVersionerFixture : IDisposable
+    [TestCaseOrderer("datntdev.SchemaVersioner.Tests.Framework.AlphabeticalOrderer", "datntdev.SchemaVersioner.Tests")]
+    public class SQLiteConnectionFixture : IDisposable
     {
-        protected readonly Mock<ILogger> _loggerMock = new Mock<ILogger>();
+        protected readonly Mock<ILogger> _loggerMock = new();
 
-        protected readonly IDbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
+        protected readonly IDbConnection _dbConnection;
+
+        protected virtual string SQLiteConnectionString => "Data Source=sqlite;Mode=Memory;Cache=Shared";
+
+        public SQLiteConnectionFixture()
+        {
+            _dbConnection = new SqliteConnection(SQLiteConnectionString);
+            _dbConnection.Open();
+        }
 
         public SchemaVersioner GetSchemaVersioner(Settings settings)
         {
@@ -21,15 +30,6 @@ namespace datntdev.SchemaVersioner.Tests.Fixtures
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-        }
-
-        protected TResult? ExecuteScalar<TResult>(string sql)
-        {
-            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
-            using var cmd = _dbConnection.CreateCommand();
-            cmd.CommandText = sql;
-            var result = (TResult?)cmd.ExecuteScalar();
-            return result;
         }
 
         protected DataTable ExecuteReader(string sql)

@@ -59,13 +59,13 @@ jobs:
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
       - name: Restore dependencies
-        run: dotnet restore src/datntdev.SchemaVersioner.Tests/datntdev.SchemaVersioner.Tests.csproj
+        run: dotnet restore
 
       - name: Build solution
-        run: dotnet build src/datntdev.SchemaVersioner.Tests/datntdev.SchemaVersioner.Tests.csproj --no-restore --configuration Release
+        run: dotnet build --no-restore --configuration Release
 
       - name: Run tests with coverage
-        run: dotnet test src/datntdev.SchemaVersioner.Tests/datntdev.SchemaVersioner.Tests.csproj --no-build --configuration Release --logger trx --results-directory ./TestResults --collect:"XPlat Code Coverage"
+        run: dotnet test --no-build --configuration Release --logger trx --results-directory ./TestResults --collect:"XPlat Code Coverage"
 
       - name: Generate coverage report
         run: |
