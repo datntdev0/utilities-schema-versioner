@@ -36,13 +36,13 @@ namespace datntdev.SchemaVersioner.Commands
             if (string.IsNullOrEmpty(targetVersion))
             {
                 _logger.LogWarning("Target version is not specified. Downgrade the latest version.");
-                var undoLatestigration = migrationScripts.FirstOrDefault(x => x.Version == latestVersion);
-                if (undoLatestigration != null)
+                var undoLatestMigration = migrationScripts.FirstOrDefault(x => x.Version == latestVersion);
+                if (undoLatestMigration != null)
                 {
                     _logger.LogInformation("Running downgrade for the latest migration {0} - {1}",
-                        undoLatestigration.Version, undoLatestigration.Description);
-                    _baseConnector.ExecuteNonQuery(undoLatestigration.Content);
-                    _dbEngine.DeleteMigrationRecord(undoLatestigration.Version);
+                        undoLatestMigration.Version, undoLatestMigration.Description);
+                    _baseConnector.ExecuteNonQuery(undoLatestMigration.Content);
+                    _dbEngine.DeleteMigrationRecord(undoLatestMigration.Version);
                 }
                 else
                 {
