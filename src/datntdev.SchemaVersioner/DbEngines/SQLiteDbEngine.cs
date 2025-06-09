@@ -25,6 +25,15 @@ namespace datntdev.SchemaVersioner.DbEngines
             _baseConnector.ExecuteNonQuery(sql);
         }
 
+        public void DeleteMigrationRecord(string version)
+        {
+            var sql = $@"
+                DELETE FROM {_settings.MetadataTable} 
+                WHERE version = '{version}' 
+                AND type = {(int)MigrationType.Versioned};";
+            _baseConnector.ExecuteNonQuery(sql);
+        }
+
         public void DropMetadataTable()
         {
             var sql = @$"DROP TABLE IF EXISTS [{_settings.MetadataTable}]";
@@ -36,7 +45,7 @@ namespace datntdev.SchemaVersioner.DbEngines
             // Drop all views in the database
             var getViewsSql = @"
                 SELECT name, type FROM sqlite_master 
-                WHERE (type = 'view' OR type = 'table') AND name <> 'sqlite_sequence';";
+                WHERE (type = 'view' OR type = 'table') AND name NOT LIKE 'sqlite_%';";
 
             var dropSqls = _baseConnector.ExecuteQuery(getViewsSql).AsEnumerable()
                 .OrderBy(x => x.Field<string>("type"))
@@ -64,6 +73,38 @@ namespace datntdev.SchemaVersioner.DbEngines
                 InstalledAt = DateTime.Parse(row.Field<string>("installed_on")),
                 IsSuccessful = row.Field<long>("success") == 1,
             }).ToArray();
+        }
+
+        public Snapshot[] GetObjectSnapshots()
+        {
+            // get table definitions for sqlite
+            var sql = $@"
+                SELECT name, sql FROM sqlite_master 
+                WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name <> '{_settings.MetadataTable}';";
+
+            var dataTable = _baseConnector.ExecuteQuery(sql);
+            var tables = dataTable.AsEnumerable().Select((row, i) => new Snapshot
+            {
+                Type = SnapshotType.Table,
+                Order = (i + 1).ToString("D3"),
+                Description = row.Field<string>("name"),
+                ContentDDL = row.Field<string>("sql")
+            }).ToArray();
+
+            sql = @"
+                SELECT name, sql FROM sqlite_master 
+                WHERE type='view' AND name NOT LIKE 'sqlite_%';";
+            
+            dataTable = _baseConnector.ExecuteQuery(sql);
+            var views = dataTable.AsEnumerable().Select((row, i) => new Snapshot
+            {
+                Type = SnapshotType.View,
+                Order = (i + 1).ToString("D3"),
+                Description = row.Field<string>("name"),
+                ContentDDL = row.Field<string>("sql")
+            }).ToArray();
+
+            return [.. tables, .. views];
         }
 
         public void InsertMigrationRecord(Migration migration)

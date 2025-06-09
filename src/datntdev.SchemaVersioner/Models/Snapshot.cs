@@ -6,6 +6,7 @@
         public string Order { get; set; } = string.Empty;
         public string FilePath { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string ContentDDL { get; set; } = string.Empty;  
 
         public string Content => System.IO.File.ReadAllText(FilePath);
     }

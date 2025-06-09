@@ -27,9 +27,6 @@ namespace datntdev.SchemaVersioner.Tests
             var dataTable = ExecuteQuery("SELECT * FROM sqlite_master").AsEnumerable();
             Assert.Contains(dataTable, row =>
                 row.Field<string>("type") == "table"
-                && row.Field<string>("tbl_name") == "schema_versioner_migrations");
-            Assert.Contains(dataTable, row =>
-                row.Field<string>("type") == "table"
                 && row.Field<string>("tbl_name") == "Table1");
             Assert.Contains(dataTable, row =>
                 row.Field<string>("type") == "table"

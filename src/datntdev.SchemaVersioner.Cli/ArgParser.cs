@@ -13,7 +13,9 @@ namespace datntdev.SchemaVersioner.Cli
                 ["--connection-string"] = val => settings.ConnectionString = val,
                 ["--migration-table"] = val => settings.MetadataTable = val,
                 ["--migration-paths"] = val => settings.MigrationPaths = val.Split(';', ','),
-                ["--snapshot-paths"] = val => settings.SnapshotPaths = val.Split(';', ',')
+                ["--snapshot-paths"] = val => settings.SnapshotPaths = val.Split(';', ','),
+                ["--target-version"] = val => settings.TargetVersion = val,
+                ["--snapshot-output-path"] = val => settings.SnapshotOutputPath = val,
             };
 
             for (int i = 0; i < args.Length; i++)

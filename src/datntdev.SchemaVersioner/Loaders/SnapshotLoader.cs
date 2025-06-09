@@ -15,6 +15,35 @@ namespace datntdev.SchemaVersioner.Loaders
                 .ToArray();
         }
 
+        public void Write(Snapshot[] snapshots, Settings settings)
+        {
+            if (!Directory.Exists(settings.SnapshotOutputPath))
+            {
+                Directory.CreateDirectory(settings.SnapshotOutputPath);
+            }
+
+            // Create snapshot output files for Tables
+            var tablesDirectory = $"{settings.SnapshotOutputPath}/Tables";
+            if (!Directory.Exists(tablesDirectory)) Directory.CreateDirectory(tablesDirectory);
+            snapshots.Where(x => x.Type == SnapshotType.Table)
+                .ToList()
+                .ForEach(x => WriteSnapshotFile(x, tablesDirectory));
+
+            // Create snapshot output files for Views
+            var viewsDirectory = $"{settings.SnapshotOutputPath}/Views";
+            if (!Directory.Exists(viewsDirectory)) Directory.CreateDirectory(viewsDirectory);
+            snapshots.Where(x => x.Type == SnapshotType.View)
+                .ToList()
+                .ForEach(x => WriteSnapshotFile(x, viewsDirectory));
+        }
+
+        private void WriteSnapshotFile(Snapshot snapshot, string outputPath)
+        {
+            var fileName = $"{snapshot.Type.ToString().Substring(0, 1)}__{snapshot.Order}_{snapshot.Description.Replace(" ", "_")}.sql";
+            var filePath = Path.Combine(outputPath, fileName);
+            File.WriteAllText(filePath, snapshot.ContentDDL);
+        }
+
         private Snapshot ParseSnapshot(string filePath)
         {
             var prefix = Path.GetFileName(filePath).Substring(0, 1);

@@ -10,6 +10,11 @@ namespace datntdev.SchemaVersioner.DbEngines
             throw new System.NotImplementedException();
         }
 
+        public void DeleteMigrationRecord(string version)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void DropMetadataTable()
         {
             throw new System.NotImplementedException();
@@ -21,6 +26,11 @@ namespace datntdev.SchemaVersioner.DbEngines
         }
 
         public Migration[] GetMetadataTable()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Snapshot[] GetObjectSnapshots()
         {
             throw new System.NotImplementedException();
         }

@@ -1,17 +1,21 @@
 ﻿using datntdev.SchemaVersioner.Models;
 using datntdev.SchemaVersioner.Tests.Framework;
+using System.Data;
 
 namespace datntdev.SchemaVersioner.Tests
 {
     public class SchemaVersioner_ShouldUpgrade : SQLiteConnectionFixture
     {
+        protected override string SQLiteConnectionString => "Data Source=sqlite_upgrade;Mode=Memory;Cache=Shared";
+
         [Fact]
-        public void ShouldUpgrade_Successfully()
+        public void ShouldUpgrade_1_Successfully_UpgradeToTargetVersion()
         {
             // Arrange
             var settings = new Settings()
             {
-
+                TargetVersion = "1.0.0",
+                MigrationPaths = ["Resources/SQLite/Migrations"],
             };
 
             // Act
@@ -19,6 +23,79 @@ namespace datntdev.SchemaVersioner.Tests
 
             // Assert
             Assert.NotNull(output.Data);
+
+            var dataTable = ExecuteQuery("SELECT * FROM schema_versioner_migrations").AsEnumerable();
+
+            var firstMigration = dataTable.First(row =>
+                row.Field<string>("version") == "1.0.0"
+                && row.Field<string>("description") == "First migration");
+            Assert.NotEmpty(firstMigration.Field<string>("checksum")!);
+
+            Assert.DoesNotContain(dataTable, row =>
+                row.Field<string>("version") == "1.1.0"
+                && row.Field<string>("description") == "Second migration");
+
+            dataTable = ExecuteQuery("SELECT * FROM sqlite_master").AsEnumerable();
+            Assert.Contains(dataTable, row =>
+                row.Field<string>("type") == "table"
+                && row.Field<string>("tbl_name") == "Table1");
+            Assert.Contains(dataTable, row =>
+                row.Field<string>("type") == "view"
+                && row.Field<string>("tbl_name") == "View1");
+        }
+
+        [Fact]
+        public void ShouldUpgrade_2_Successfully_UpgradeToLatestVersion()
+        {
+            // Arrange
+            var settings = new Settings()
+            {
+                MigrationPaths = ["Resources/SQLite/Migrations"],
+            };
+
+            // Act
+            var output = GetSchemaVersioner(settings).Upgrade();
+
+            // Assert
+            Assert.NotNull(output.Data);
+
+            var dataTable = ExecuteQuery("SELECT * FROM schema_versioner_migrations").AsEnumerable();
+            var firstMigration = dataTable.First(row =>
+                row.Field<string>("version") == "1.0.0"
+                && row.Field<string>("description") == "First migration");
+            Assert.NotEmpty(firstMigration.Field<string>("checksum")!);
+            var secondMigration = dataTable.First(row =>
+                row.Field<string>("version") == "1.1.0"
+                && row.Field<string>("description") == "Second migration");
+            Assert.NotEmpty(firstMigration.Field<string>("checksum")!);
+
+            dataTable = ExecuteQuery("SELECT * FROM sqlite_master").AsEnumerable();
+            Assert.Contains(dataTable, row =>
+                row.Field<string>("type") == "table"
+                && row.Field<string>("tbl_name") == "Table1");
+            Assert.Contains(dataTable, row =>
+                row.Field<string>("type") == "view"
+                && row.Field<string>("tbl_name") == "View1");
+            Assert.Contains(dataTable, row =>
+                row.Field<string>("type") == "table"
+                && row.Field<string>("tbl_name") == "Table2");
+            Assert.Contains(dataTable, row =>
+                row.Field<string>("type") == "view"
+                && row.Field<string>("tbl_name") == "View2");
+        }
+
+        [Fact]
+        public void ShouldUpgrade_3_RisedException_WhenTargetVersionNotExists()
+        {
+            // Arrange
+            var settings = new Settings()
+            {
+                TargetVersion = "2.0.0", // Non-existent version
+                MigrationPaths = ["Resources/SQLite/Migrations"],
+            };
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(() => GetSchemaVersioner(settings).Upgrade());
+            Assert.Equal("Target version '2.0.0' does not exist in migration scripts.", ex.Message);
         }
     }
 }
