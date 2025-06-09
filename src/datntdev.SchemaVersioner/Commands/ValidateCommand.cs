@@ -43,7 +43,7 @@ namespace datntdev.SchemaVersioner.Commands
                 }
                 else if (record.Checksum != script.ContentChecksum)
                 {
-                    consoleTable.AddRow(script.Version, script.Description, "Checksum Mismatch", record?.InstalledBy, record.InstalledAt, "N/A");
+                    consoleTable.AddRow(script.Version, script.Description, "Checksum Mismatch", record?.InstalledBy, record?.InstalledAt, "N/A");
                 }
             }
             var tableOutput = consoleTable.ToString().Replace("\r", "");

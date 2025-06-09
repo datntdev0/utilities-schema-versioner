@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace datntdev.SchemaVersioner.Cli.Tests
 {
-    public class ProgramCli_ShouldExecute(ITestOutputHelper output) : SQLiteConnectionFixture
+    public class ProgramCli_ShouldExecute : SQLiteConnectionFixture
     {
         protected override string SQLiteConnectionString => "Data Source=Resources/SQLite/database.db;Cache=Shared";
 
