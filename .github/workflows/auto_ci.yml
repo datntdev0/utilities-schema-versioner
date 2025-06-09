@@ -65,9 +65,16 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run tests with coverage
-        run: dotnet test --no-build --configuration Release --logger trx --results-directory ./TestResults --collect:"XPlat Code Coverage"
-
-      - name: Generate coverage report
         run: |
-          reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:CoverageReport -reporttypes:TextSummary
+          dotnet test --no-build --configuration Release \
+          --logger trx --results-directory ./TestResults --collect:"XPlat Code Coverage" \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByAttribute=*.Tests*
+
+      - name: Generate coverage report (exclude test projects)
+        run: |
+          reportgenerator \
+          -reports:TestResults/**/coverage.cobertura.xml \
+          -targetdir:CoverageReport \
+          -reporttypes:TextSummary \
+          -assemblyfilters:"-*.Tests*"
           cat CoverageReport/Summary.txt
