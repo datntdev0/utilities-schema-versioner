@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/datntdev.SchemaVersioner.Cli/datntdev.SchemaVersioner.Cli.csproj" />
+    <Project Path="src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/datntdev.SchemaVersioner.Cli.Tests/datntdev.SchemaVersioner.Cli.Tests.csproj" Id="c63c30ff-3000-4a25-911f-da7665690f57" />
+    <Project Path="test/datntdev.SchemaVersioner.Tests/datntdev.SchemaVersioner.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,3 @@
+﻿-- create simple view for sqlite
+CREATE VIEW IF NOT EXISTS [View1] AS
+SELECT "Id", "Name" [Table1]
