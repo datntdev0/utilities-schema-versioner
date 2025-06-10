@@ -8,7 +8,7 @@ namespace datntdev.SchemaVersioner.Connectors
         public DbEngineType DbEngineType => DbEngineType.MsSQL;
 
         protected override string SQL_CheckVersion => @"
-            SELECT COUNT(*)
+            SELECT CAST(COUNT(*) AS BIGINT)
             FROM (SELECT @@VERSION AS _VERSION) AS t
             WHERE t._VERSION LIKE '%SQL Server%';";
 

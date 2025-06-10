@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using CommandType = datntdev.SchemaVersioner.Models.CommandType;
 
 [assembly: InternalsVisibleTo("datntdev.SchemaVersioner.Tests")]
+[assembly: InternalsVisibleTo("datntdev.SchemaVersioner.Cli.Tests")]
 
 namespace datntdev.SchemaVersioner
 {
