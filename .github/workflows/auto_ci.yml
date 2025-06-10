@@ -64,6 +64,13 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
+      - name: Install Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Pull database images for unit tests
+        run: |
+          docker pull mcr.microsoft.com/mssql/server:latest
+          
       - name: Run tests with coverage
         run: |
           dotnet test --no-build --configuration Release \
