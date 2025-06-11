@@ -6,8 +6,8 @@ BEGIN
 	DECLARE @Count INT;
 	SELECT @Count = COUNT(*) FROM [dbo].[Table1];
 	RETURN @Count;
-END;
-GO;
+END
+GO
 
 -- create a simple procedure for mssql
 CREATE PROCEDURE [dbo].[Procedure1]
@@ -16,4 +16,4 @@ BEGIN
 	SELECT [Id], [Name], [CreatedAt]
 	FROM [dbo].[Table1]
 END
-GO;
+GO

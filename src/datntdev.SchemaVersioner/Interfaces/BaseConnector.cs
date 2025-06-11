@@ -63,6 +63,16 @@ namespace datntdev.SchemaVersioner.Interfaces
             cmd.ExecuteNonQuery();
         }
 
+        public virtual void ExecuteComplexContent(string sql)
+        {
+            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
+
+            using var cmd = _dbConnection.CreateCommand();
+            cmd.CommandText = sql;
+
+            cmd.ExecuteNonQuery();
+        }
+
         public TResult ExecuteScalar<TResult>(string sql)
         {
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));

@@ -4,11 +4,9 @@ CREATE TABLE [dbo].[Table1] (
 	[Name] NVARCHAR(100) NOT NULL,
 	[CreatedAt] DATETIME2 NOT NULL DEFAULT GETDATE()
 );
-GO;
-
+GO
 -- create a simple view in mssql
-CREATE VIEW [dbo].[View1]
+CREATE OR ALTER VIEW [dbo].[View1]
 AS
 SELECT [Id], [Name], [CreatedAt]
 FROM [dbo].[Table1];
-GO;

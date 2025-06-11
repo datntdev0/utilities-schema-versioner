@@ -1,12 +1,11 @@
-﻿using Azure;
-using Docker.DotNet;
+﻿using Docker.DotNet;
 using Docker.DotNet.Models;
 using System.Data;
 using System.Runtime.InteropServices;
 
 namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
 {
-    public abstract class DockerDbContainer
+    public abstract class DockerDbContainer : IAsyncLifetime
     {
         private readonly DockerClient _client = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine")).CreateClient()
@@ -49,6 +48,37 @@ namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
             });
 
             await _client.Containers.StartContainerAsync(newContainer.ID, null);
+        }
+
+        public virtual async Task WaitConnection()
+        {
+            var timeout = TimeSpan.FromSeconds(30);
+            var startTime = DateTime.UtcNow;
+            while (DateTime.UtcNow - startTime < timeout)
+            {
+                try
+                {
+                    DbConnection.Open();
+                    return; // Connection successful
+                }
+                catch (Exception)
+                {
+                    await Task.Delay(1000); // Wait before retrying
+                }
+            }
+            throw new TimeoutException($"Could not connect to the database within {timeout.TotalSeconds} seconds.");
+        }
+
+        public async Task InitializeAsync()
+        {
+            await BuildAndStart();
+            await WaitConnection();
+        }
+
+        public Task DisposeAsync()
+        {
+            DbConnection?.Dispose();
+            return Task.CompletedTask;
         }
     }
 }

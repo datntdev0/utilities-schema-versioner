@@ -1,5 +1,8 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
+using System;
+using System.Data;
+using System.Linq;
 
 namespace datntdev.SchemaVersioner.DbEngines
 {
@@ -40,22 +43,65 @@ namespace datntdev.SchemaVersioner.DbEngines
 
         public void DeleteMigrationRecord(string version)
         {
-            throw new System.NotImplementedException();
+            var sql = $@"
+                DELETE FROM [{_settings.MetadataSchema}].[{_settings.MetadataTable}] 
+                WHERE version = '{version}' 
+                AND type = {(int)MigrationType.Versioned};";
+            _baseConnector.ExecuteNonQuery(sql);
         }
 
         public void DropMetadataTable()
         {
-            throw new System.NotImplementedException();
+            var sql = $@"DROP TABLE IF EXISTS [{_settings.MetadataSchema}].[{_settings.MetadataTable}]";
+            _baseConnector.ExecuteNonQuery(sql);
         }
 
         public void EraseDatabase()
         {
-            throw new System.NotImplementedException();
+            var getTablesAndViews = $@"SELECT * FROM INFORMATION_SCHEMA.TABLES";
+            var dropSqls = _baseConnector.ExecuteQuery(getTablesAndViews).AsEnumerable()
+                .OrderBy(x => x.Field<string>("TABLE_TYPE"))
+                .Select(x => new 
+                { 
+                    type = x.Field<string>("TABLE_TYPE").Replace("BASE ", ""),
+                    name = x.Field<string>("TABLE_NAME"),
+                    schema = x.Field<string>("TABLE_SCHEMA")
+                })
+                .Select(x => $"DROP {x.type.ToUpper()} [{x.schema}].[{x.name}]");
+            _baseConnector.ExecuteNonQuery(string.Join(";", dropSqls));
+
+            var getRoutines = @"SELECT * FROM INFORMATION_SCHEMA.ROUTINES";
+            var dropRoutinesSqls = _baseConnector.ExecuteQuery(getRoutines).AsEnumerable()
+                .OrderBy(x => x.Field<string>("ROUTINE_TYPE"))
+                .Select(x => new 
+                { 
+                    type = x.Field<string>("ROUTINE_TYPE"), 
+                    name = x.Field<string>("ROUTINE_NAME"), 
+                    schema = x.Field<string>("ROUTINE_SCHEMA") 
+                })
+                .Select(x => $"DROP {x.type.ToUpper()} [{x.schema}].[{x.name}]");
+
+            _baseConnector.ExecuteNonQuery(string.Join(";", dropRoutinesSqls));
         }
 
         public Migration[] GetMetadataTable()
         {
-            throw new System.NotImplementedException();
+            var sql = $@"
+                SELECT type, version, description, checksum, installed_by, installed_on, success 
+                FROM [{_settings.MetadataSchema}].[{_settings.MetadataTable}] 
+                ORDER BY installed_on DESC;";
+
+            var dataTable = _baseConnector.ExecuteQuery(sql);
+            return dataTable.AsEnumerable().Select(row => new Migration
+            {
+                Type = (MigrationType)row.Field<int>("type"),
+                Version = row.Field<string>("version"),
+                Description = row.Field<string>("description"),
+                Checksum = row.Field<string>("checksum"),
+                InstalledBy = row.Field<string>("installed_by"),
+                InstalledAt = row.Field<DateTime>("installed_on"),
+                IsSuccessful = row.Field<bool>("success")
+            }).ToArray();
         }
 
         public Snapshot[] GetObjectSnapshots()

@@ -1,43 +1,17 @@
 ﻿using datntdev.SchemaVersioner.Helpers;
 using System.Data;
-using System.Data.Common;
 
 namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
 {
-    public class DockerConnectionFixture<TContainer> : IAsyncLifetime
+    [TestCaseOrderer("datntdev.SchemaVersioner.Tests.Framework.AlphabeticalOrderer", "datntdev.SchemaVersioner.Tests")]
+    public class DockerConnectionFixture<TContainer>(TContainer container) : IDisposable
         where TContainer : DockerDbContainer, new()
     {
-        protected readonly TContainer _container = new();
+        protected readonly TContainer _container = container;
 
-        public Task DisposeAsync()
+        public void Dispose()
         {
             GC.SuppressFinalize(this);
-            return Task.CompletedTask;
-        }
-
-        public async Task InitializeAsync()
-        {
-            await _container.BuildAndStart();
-            await WaitConnection();
-        }
-
-        protected async Task WaitConnection()
-        {
-            var timeout = TimeSpan.FromSeconds(30);
-            var startTime = DateTime.UtcNow;
-            while (DateTime.UtcNow - startTime < timeout)
-            {
-                try
-                {
-                    _container.DbConnection.Open();
-                    return; // Connection successful
-                }
-                catch (Exception)
-                {
-                    await Task.Delay(1000); // Wait before retrying
-                }
-            }
-            throw new TimeoutException($"Could not connect to the database within {timeout.TotalSeconds} seconds.");
         }
 
         protected DataTable ExecuteQuery(string sql)
@@ -52,5 +26,13 @@ namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
             return dataTable;
         }
 
+        protected void ExecuteNonQuery(string sql)
+        {
+            ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
+
+            using var cmd = _container.DbConnection.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.ExecuteNonQuery();
+        }
     }
 }
