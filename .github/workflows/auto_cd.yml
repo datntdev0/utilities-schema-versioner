@@ -1,0 +1,58 @@
+name: Automatic CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  unit-tests:
+    name: Run C# Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release
+
+  publish-nuget:
+    name: Publish to NuGet
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build library
+        run: dotnet build src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj --configuration Release
+
+      - name: Pack NuGet package
+        run: |
+          VERSION_SUFFIX=-beta.$(date +"%Y%m%d")
+          dotnet pack src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj --configuration Release --output ./nupkg --version-suffix $VERSION_SUFFIX
+
+      - name: Publish to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate

@@ -41,7 +41,7 @@ namespace datntdev.SchemaVersioner.Commands
                 {
                     _logger.LogInformation("Running downgrade for the latest migration {0} - {1}",
                         undoLatestMigration.Version, undoLatestMigration.Description);
-                    _baseConnector.ExecuteNonQuery(undoLatestMigration.Content);
+                    _baseConnector.ExecuteComplexContent(undoLatestMigration.Content);
                     _dbEngine.DeleteMigrationRecord(undoLatestMigration.Version);
                 }
                 else
@@ -79,7 +79,7 @@ namespace datntdev.SchemaVersioner.Commands
                 undoScripts.ForEach(migration =>
                 {
                     _logger.LogInformation("Running downgrade {0} - {1}", migration.Version, migration.Description);
-                    _baseConnector.ExecuteNonQuery(migration.Content);
+                    _baseConnector.ExecuteComplexContent(migration.Content);
                     _dbEngine.DeleteMigrationRecord(migration.Version);
                 });
             }

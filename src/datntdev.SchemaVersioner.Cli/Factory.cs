@@ -16,7 +16,7 @@ namespace datntdev.SchemaVersioner.Cli
             {
                 DbEngineType.SQLite => new SqliteConnection(settings.ConnectionString),
                 DbEngineType.MsSQL => new SqlConnection(settings.ConnectionString),
-                _ => throw new NotSupportedException($"Database type '{settings.DbEngineType}' is not supported.")
+                _ => throw new NotSupportedException($"Database type is not supported.")
             };
 
             return new(connection, logger, settings);

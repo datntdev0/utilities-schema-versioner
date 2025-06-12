@@ -25,7 +25,9 @@ namespace datntdev.SchemaVersioner.Commands
 
             // Load migration scripts from migration folders
             _logger.LogInformation("Loading migrations scripts from migration folders...");
-            var migrationScripts = new MigrationLoader().Load(_settings)
+            var scripts = new MigrationLoader().Load(_settings);
+
+            var migrationScripts = scripts
                 .Where(x => x.Type == MigrationType.Versioned)
                 .OrderBy(x => x.Version).ToList();
 
@@ -50,8 +52,19 @@ namespace datntdev.SchemaVersioner.Commands
             runningMigrations.ForEach(migration =>
             {
                 _logger.LogInformation("Running migration {0} - {1}", migration.Version, migration.Description);
-                _baseConnector.ExecuteNonQuery(migration.Content);
+                _baseConnector.ExecuteComplexContent(migration.Content);
                 _dbEngine.InsertMigrationRecord(migration);
+            });
+
+            // Run repeatable migrations
+            _logger.LogInformation("Running repeatable migrations...");
+            var repeatableMigrations = scripts
+                .Where(x => x.Type == MigrationType.Repeatable)
+                .ToList();
+            repeatableMigrations.ForEach(migration =>
+            {
+                _logger.LogInformation("Running repeatable migration {0} - {1}", migration.Version, migration.Description);
+                _baseConnector.ExecuteComplexContent(migration.Content);
             });
 
             return new CommandOutput<CommandOutputUpgrade>(new CommandOutputUpgrade());

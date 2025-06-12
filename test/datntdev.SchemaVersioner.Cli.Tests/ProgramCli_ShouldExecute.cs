@@ -14,7 +14,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
             // Arrange
             var args = new string[]
             {
-                "--database-type", "sqlite",
+                "--database-type=sqlite",
                 "--connection-string", SQLiteConnectionString,
                 "--migration-paths", "Resources/SQLite/Migrations",
                 "--snapshot-paths", "Resources/SQLite/Snapshots",
@@ -391,6 +391,23 @@ namespace datntdev.SchemaVersioner.Cli.Tests
             Assert.Contains(snapshotOutputFiles, file => file.Contains("T__002_Table2.sql"));
             Assert.Contains(snapshotOutputFiles, file => file.Contains("V__001_View1.sql"));
             Assert.Contains(snapshotOutputFiles, file => file.Contains("V__002_View2.sql"));
+        }
+
+        [Fact]
+        public void _15_ShouldSnapshot_RisedException_NotSupportedDatabaseType()
+        {
+            // Arrange
+            var args = new string[]
+            {
+                "--database-type", "unsupported_db_type", // This is not a supported database type
+                "--connection-string", SQLiteConnectionString,
+                "--migration-paths", "Resources/SQLite/Migrations",
+                "--snapshot-paths", "Resources/SQLite/Snapshots",
+                "snapshot",
+            };
+            // Act & Assert
+            var ex = Assert.Throws<NotSupportedException>(() => Program.Main(args));
+            Assert.Equal("Database type is not supported.", ex.Message);
         }
     }
 }

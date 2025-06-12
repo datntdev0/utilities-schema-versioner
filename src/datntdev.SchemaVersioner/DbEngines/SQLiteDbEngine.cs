@@ -43,11 +43,11 @@ namespace datntdev.SchemaVersioner.DbEngines
         public void EraseDatabase()
         {
             // Drop all views in the database
-            var getViewsSql = @"
+            var getTablesAndViews = @"
                 SELECT name, type FROM sqlite_master 
                 WHERE (type = 'view' OR type = 'table') AND name NOT LIKE 'sqlite_%';";
 
-            var dropSqls = _baseConnector.ExecuteQuery(getViewsSql).AsEnumerable()
+            var dropSqls = _baseConnector.ExecuteQuery(getTablesAndViews).AsEnumerable()
                 .OrderBy(x => x.Field<string>("type"))
                 .Select(x => new { type = x.Field<string>("type"), name = x.Field<string>("name") })
                 .Select(x => $"DROP {x.type.ToUpper()} IF EXISTS [{x.name}]");
