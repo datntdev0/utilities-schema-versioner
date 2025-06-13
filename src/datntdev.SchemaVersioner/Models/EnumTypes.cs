@@ -36,8 +36,8 @@
         MySQL,
         SQLite,
         Oracle,
+        MsFabric,
         Snowflake,
         PostgreSQL,
-        FabricWarehouse,
     }
 }

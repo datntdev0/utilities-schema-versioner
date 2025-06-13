@@ -52,7 +52,7 @@ namespace datntdev.SchemaVersioner.DbEngines
                 .Select(x => new { type = x.Field<string>("type"), name = x.Field<string>("name") })
                 .Select(x => $"DROP {x.type.ToUpper()} IF EXISTS [{x.name}]");
 
-            _baseConnector.ExecuteNonQuery(string.Join(";", dropSqls));
+            if (dropSqls.Any()) _baseConnector.ExecuteNonQuery(string.Join(";", dropSqls));
         }
 
         public Migration[] GetMetadataTable()

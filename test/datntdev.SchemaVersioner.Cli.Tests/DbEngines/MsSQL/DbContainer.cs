@@ -23,8 +23,6 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
 
         public override string[] ContainerEnv => ["ACCEPT_EULA=Y", $"MSSQL_SA_PASSWORD={Password}"];
 
-        public override IDbConnection DbConnection { get; protected set; }
-
         public DbContainer()
         {
             DbConnection = new SqlConnection(ConnectionString);

@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace datntdev.SchemaVersioner.DbEngines
 {
-    internal class MsSQLDbEngine : BaseDbEngine, IDbEngine
+    internal class MsFabricDbEngine : BaseDbEngine, IDbEngine
     {
-        public MsSQLDbEngine(SchemaVersionerContext context) : base(context)
+        public MsFabricDbEngine(SchemaVersionerContext context) : base(context)
         {
             if (string.IsNullOrEmpty(_settings.MetadataSchema))
             {
@@ -29,13 +29,13 @@ namespace datntdev.SchemaVersioner.DbEngines
             var sql = $@"
                 CREATE TABLE [{_settings.MetadataSchema}].[{_settings.MetadataTable}] 
                 ( 
-                    id INT IDENTITY(1,1) PRIMARY KEY NOT NULL, 
-                    type INT, 
-                    version NVARCHAR(50), 
-                    description NVARCHAR(200) NOT NULL, 
-                    checksum NVARCHAR(32), 
-                    installed_by NVARCHAR(100) NOT NULL, 
-                    installed_on DATETIME NOT NULL DEFAULT GETDATE(), 
+                    id BIGINT NOT NULL, 
+                    type SMALLINT, 
+                    version VARCHAR(50), 
+                    description VARCHAR(200) NOT NULL, 
+                    checksum VARCHAR(32), 
+                    installed_by VARCHAR(100) NOT NULL, 
+                    installed_on DATETIME2(0) NOT NULL, 
                     success BIT NOT NULL 
                 );";
             _baseConnector.ExecuteNonQuery(sql);
@@ -58,7 +58,9 @@ namespace datntdev.SchemaVersioner.DbEngines
 
         public void EraseDatabase()
         {
-            var getTablesAndViews = $@"SELECT * FROM INFORMATION_SCHEMA.TABLES";
+            var getTablesAndViews = $@"
+                SELECT * FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_SCHEMA <> 'sys' AND TABLE_SCHEMA <> 'queryinsights'";
             var dropSqls = _baseConnector.ExecuteQuery(getTablesAndViews).AsEnumerable()
                 .OrderBy(x => x.Field<string>("TABLE_TYPE"))
                 .Select(x => new 
@@ -95,7 +97,7 @@ namespace datntdev.SchemaVersioner.DbEngines
             var dataTable = _baseConnector.ExecuteQuery(sql);
             return dataTable.AsEnumerable().Select(row => new Migration
             {
-                Type = (MigrationType)row.Field<int>("type"),
+                Type = (MigrationType)row.Field<short>("type"),
                 Version = row.Field<string>("version"),
                 Description = row.Field<string>("description"),
                 Checksum = row.Field<string>("checksum"),
@@ -114,14 +116,16 @@ namespace datntdev.SchemaVersioner.DbEngines
         {
             var sql = $@"
                 INSERT INTO [{_settings.MetadataSchema}].[{_settings.MetadataTable}] 
-                (type, version, description, checksum, installed_by, success) 
+                (id, type, version, description, checksum, installed_by, installed_on, success) 
                 VALUES 
                 (
+                    CAST(FORMAT(GETDATE(), 'yyyyMMddHHmmssfff') AS BIGINT),
                     {(int)migration.Type}, 
                     '{migration.Version}',
                     '{migration.Description}', 
                     '{migration.ContentChecksum}', 
                     SUSER_SNAME(),
+                    GETDATE(),
                     1
                 );";
             _baseConnector.ExecuteNonQuery(sql);
