@@ -13,9 +13,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--snapshot-paths", "Resources/MsSQL/Snapshots",
                 "init",
@@ -78,9 +78,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--snapshot-paths", "Resources/MsSQL/Snapshots",
                 "init",
@@ -98,9 +98,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--snapshot-paths", "Resources/MsSQL/Snapshots",
                 "erase",
@@ -128,9 +128,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--snapshot-paths", "Resources/MsSQL/Snapshots",
                 "repair",
@@ -165,9 +165,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--snapshot-paths", "Resources/MsSQL/Snapshots",
                 "validate",
@@ -186,9 +186,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--snapshot-paths", "Resources/MsSQL/Snapshots",
                 "validate",
@@ -206,9 +206,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--snapshot-paths", "Resources/MsSQL/Snapshots",
                 "validate",
@@ -225,9 +225,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations",
                 "--target-version", "1.0.0",
                 "upgrade",
@@ -288,9 +288,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "upgrade",
             };
@@ -358,9 +358,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--target-version", "2.0.0",
                 "upgrade",
@@ -371,15 +371,103 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
         }
 
         [Fact]
-        public void _11_ShouldDowngrade_Successfully_DowngradeTheLatestVersion() 
+        public void _11_ShouldSnapshot_Successfully()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "mssql",
+                "--metadata-table", "MigrationHistory",
                 "--connection-string", _container.ConnectionString,
+                "--migration-paths", "Resources/MsSQL/Migrations",
+                "--snapshot-paths", "Resources/MsSQL/Snapshots",
+                "--snapshot-output-path", "Resources/MsSQL/SnapshotsOutput",
+                "snapshot",
+            };
+
+            // Act
+            Program.Main(args);
+
+            // Assert
+            var snapshotOutputFiles = Directory.GetFiles(
+                "Resources/MsSQL/SnapshotsOutput", "*.sql", SearchOption.AllDirectories);
+            Assert.Equal(8, snapshotOutputFiles.Length);
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("T_001__Table1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("T_002__Table2.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_001__View1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_002__View1_1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_003__View2.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_004__View2_1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("P_001__Procedure1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("F_001__CountTableRecords.sql"));
+        }
+
+        [Fact]
+        public void _12_ShouldSnapshot_Successfully_RunInitFromSnapshots()
+        {
+            // Arrange
+            var args = new string[]
+            {
+                "--database-type", "mssql",
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
+                "--migration-paths", "Resources/MsSQL/Migrations",
+                "--snapshot-paths", "Resources/MsSQL/SnapshotsOutput",
+            };
+            Program.Main([.. args, "erase"]);
+
+            // Act
+            Program.Main([.. args, "init"]);
+
+            // Assert
+            var dataTable = ExecuteQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES;").AsEnumerable();
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "Table1" &&
+                row["TABLE_TYPE"].ToString() == "BASE TABLE" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "Table2" &&
+                row["TABLE_TYPE"].ToString() == "BASE TABLE" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "View1" &&
+                row["TABLE_TYPE"].ToString() == "VIEW" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "View1_1" &&
+                row["TABLE_TYPE"].ToString() == "VIEW" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "View2" &&
+                row["TABLE_TYPE"].ToString() == "VIEW" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "View2_1" &&
+                row["TABLE_TYPE"].ToString() == "VIEW" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+
+            dataTable = ExecuteQuery("SELECT * FROM INFORMATION_SCHEMA.ROUTINES;").AsEnumerable();
+            Assert.Contains(dataTable, row =>
+                row["ROUTINE_NAME"].ToString() == "Procedure1" &&
+                row["ROUTINE_TYPE"].ToString() == "PROCEDURE" &&
+                row["ROUTINE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["ROUTINE_NAME"].ToString() == "CountTableRecords" &&
+                row["ROUTINE_TYPE"].ToString() == "FUNCTION" &&
+                row["ROUTINE_SCHEMA"].ToString() == "dbo");
+        }
+
+        [Fact]
+        public void _13_ShouldDowngrade_Successfully_DowngradeTheLatestVersion() 
+        {
+            // Arrange
+            var args = new string[]
+            {
+                "--database-type", "mssql",
+                "--metadata-schema", "log",
+                "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations",
                 "downgrade",
             };
@@ -435,15 +523,15 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
         }
 
         [Fact]
-        public void _12_ShouldDowngrade_Successfully_DowngradeToTargetVersion()
+        public void _14_ShouldDowngrade_Successfully_DowngradeToTargetVersion()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--target-version", "1.0.0",
                 "downgrade",
@@ -466,15 +554,15 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
         }
 
         [Fact]
-        public void _13_ShouldDowngrade_RisedException_WhenTargetVersionNotExists()
+        public void _15_ShouldDowngrade_RisedException_WhenTargetVersionNotExists()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "mssql",
-                "--connection-string", _container.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations;Resources/MsSQL/Repeatable",
                 "--target-version", "2.0.0",
                 "downgrade",

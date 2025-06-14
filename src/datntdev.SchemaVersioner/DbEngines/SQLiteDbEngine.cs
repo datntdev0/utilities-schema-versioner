@@ -50,7 +50,7 @@ namespace datntdev.SchemaVersioner.DbEngines
             var dropSqls = _baseConnector.ExecuteQuery(getTablesAndViews).AsEnumerable()
                 .OrderBy(x => x.Field<string>("type"))
                 .Select(x => new { type = x.Field<string>("type"), name = x.Field<string>("name") })
-                .Select(x => $"DROP {x.type.ToUpper()} IF EXISTS [{x.name}]");
+                .Select(x => $"DROP {x.type!.ToUpper()} IF EXISTS [{x.name}]");
 
             if (dropSqls.Any()) _baseConnector.ExecuteNonQuery(string.Join(";", dropSqls));
         }
@@ -66,18 +66,17 @@ namespace datntdev.SchemaVersioner.DbEngines
             return dataTable.AsEnumerable().Select(row => new Migration
             {
                 Type = (MigrationType)row.Field<long>("type"),
-                Version = row.Field<string>("version"),
-                Description = row.Field<string>("description"),
-                Checksum = row.Field<string>("checksum"),
-                InstalledBy = row.Field<string>("installed_by"),
-                InstalledAt = DateTime.Parse(row.Field<string>("installed_on")),
+                Version = row.Field<string>("version")!,
+                Description = row.Field<string>("description")!,
+                Checksum = row.Field<string>("checksum")!,
+                InstalledBy = row.Field<string>("installed_by")!,
+                InstalledAt = DateTime.Parse(row.Field<string>("installed_on")!),
                 IsSuccessful = row.Field<long>("success") == 1,
             }).ToArray();
         }
 
         public Snapshot[] GetObjectSnapshots()
         {
-            // get table definitions for sqlite
             var sql = $@"
                 SELECT name, sql FROM sqlite_master 
                 WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name <> '{_settings.MetadataTable}';";
@@ -87,8 +86,8 @@ namespace datntdev.SchemaVersioner.DbEngines
             {
                 Type = SnapshotType.Table,
                 Order = (i + 1).ToString("D3"),
-                Description = row.Field<string>("name"),
-                ContentDDL = row.Field<string>("sql")
+                Description = row.Field<string>("name")!,
+                ContentDDL = row.Field<string>("sql")!,
             }).ToArray();
 
             sql = @"
@@ -100,8 +99,8 @@ namespace datntdev.SchemaVersioner.DbEngines
             {
                 Type = SnapshotType.View,
                 Order = (i + 1).ToString("D3"),
-                Description = row.Field<string>("name"),
-                ContentDDL = row.Field<string>("sql")
+                Description = row.Field<string>("name")!,
+                ContentDDL = row.Field<string>("sql")!,
             }).ToArray();
 
             return [.. tables, .. views];

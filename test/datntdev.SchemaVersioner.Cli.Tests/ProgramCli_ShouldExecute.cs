@@ -190,8 +190,10 @@ namespace datntdev.SchemaVersioner.Cli.Tests
                 "--target-version", "1.0.0",
                 "upgrade",
             };
+
             // Act
             Program.Main(args);
+
             // Assert
             var dataTable = ExecuteQuery("SELECT * FROM schema_versioner_migrations").AsEnumerable();
 
@@ -224,6 +226,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
                 "--migration-paths", "Resources/SQLite/Migrations",
                 "upgrade",
             };
+
             // Act
             Program.Main(args);
 
@@ -272,7 +275,61 @@ namespace datntdev.SchemaVersioner.Cli.Tests
         }
 
         [Fact]
-        public void _11_ShouldDowngrade_Successfully_DowngradeTheLatestVersion()
+        public void _11_ShouldSnapshot_Successfully()
+        {
+            // Arrange
+            var args = new string[]
+            {
+                "--database-type", "sqlite",
+                "--connection-string", SQLiteConnectionString,
+                "--migration-paths", "Resources/SQLite/Migrations",
+                "--snapshot-paths", "Resources/SQLite/Snapshots",
+                "--snapshot-output-path", "Resources/SQLite/SnapshotsOutput",
+                "snapshot"
+            };
+
+            // Act
+            Program.Main(args);
+
+            // Assert
+            var snapshotOutputFiles = Directory.GetFiles(
+                "Resources/SQLite/SnapshotsOutput", "*.sql", SearchOption.AllDirectories);
+            Assert.Equal(4, snapshotOutputFiles.Length);
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("T_001__Table1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("T_002__Table2.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_001__View1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_002__View2.sql"));
+        }
+
+
+        [Fact]
+        public void _12_ShouldSnapshot_Successfully_RunInitFromSnapshots()
+        {
+            // Arrange
+            var args = new string[]
+            {
+                "--database-type", "sqlite",
+                "--connection-string", SQLiteConnectionString,
+                "--migration-paths", "Resources/SQLite/Migrations",
+                "--snapshot-paths", "Resources/SQLite/SnapshotsOutput",
+            };
+            Program.Main([.. args, "erase"]);
+
+            // Act
+            Program.Main([.. args, "init"]);
+
+            // Assert
+            var dataTable = ExecuteQuery("SELECT * FROM sqlite_master").AsEnumerable();
+            Assert.Contains(dataTable, row =>
+                row.Field<string>("type") == "table"
+                && row.Field<string>("tbl_name") == "Table1");
+            Assert.Contains(dataTable, row =>
+                row.Field<string>("type") == "table"
+                && row.Field<string>("tbl_name") == "Table2");
+        }
+
+        [Fact]
+        public void _13_ShouldDowngrade_Successfully_DowngradeTheLatestVersion()
         {
             // Arrange
             var args = new string[]
@@ -314,7 +371,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
         }
 
         [Fact]
-        public void _12_ShouldDowngrade_Successfully_DowngradeTheTargetVersion()
+        public void _14_ShouldDowngrade_Successfully_DowngradeTheTargetVersion()
         {
             // Arrange
             var args = new string[]
@@ -325,6 +382,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
                 "--target-version", "1.0.0",
                 "downgrade",
             };
+
             // Act
             Program.Main(args);
 
@@ -348,7 +406,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
         }
 
         [Fact]
-        public void _13_ShouldDowngrade_RisedException_WhenTargetVersionNotExists()
+        public void _15_ShouldDowngrade_RisedException_WhenTargetVersionNotExists()
         {
             // Arrange
             var args = new string[]
@@ -366,35 +424,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
         }
 
         [Fact]
-        public void _14_ShouldSnapshot_Successfully()
-        {
-            // Arrange
-            var args = new string[]
-            {
-                "--database-type", "sqlite",
-                "--connection-string", SQLiteConnectionString,
-                "--migration-paths", "Resources/SQLite/Migrations",
-                "--snapshot-paths", "Resources/SQLite/Snapshots",
-                "--snapshot-output-path", "Resources/SQLite/SnapshotsOutput",
-            };
-            Program.Main([.. args, "erase"]);
-            Program.Main([.. args, "init"]);
-
-            // Act
-            Program.Main([.. args, "snapshot"]);
-
-            // Assert
-            var snapshotOutputFiles = Directory.GetFiles(
-                "Resources/SQLite/SnapshotsOutput", "*.sql", SearchOption.AllDirectories);
-            Assert.Equal(4, snapshotOutputFiles.Length);
-            Assert.Contains(snapshotOutputFiles, file => file.Contains("T__001_Table1.sql"));
-            Assert.Contains(snapshotOutputFiles, file => file.Contains("T__002_Table2.sql"));
-            Assert.Contains(snapshotOutputFiles, file => file.Contains("V__001_View1.sql"));
-            Assert.Contains(snapshotOutputFiles, file => file.Contains("V__002_View2.sql"));
-        }
-
-        [Fact]
-        public void _15_ShouldSnapshot_RisedException_NotSupportedDatabaseType()
+        public void _16_ShouldSnapshot_RisedException_NotSupportedDatabaseType()
         {
             // Arrange
             var args = new string[]
@@ -405,6 +435,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
                 "--snapshot-paths", "Resources/SQLite/Snapshots",
                 "snapshot",
             };
+
             // Act & Assert
             var ex = Assert.Throws<NotSupportedException>(() => Program.Main(args));
             Assert.Equal("Database type is not supported.", ex.Message);

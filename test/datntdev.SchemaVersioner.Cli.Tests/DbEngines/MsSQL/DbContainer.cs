@@ -15,7 +15,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
 
         public override string ContainerName => "schema-versioner-mssql";
 
-        public override string ContainerImage => "mcr.microsoft.com/mssql/server:latest";
+        public override string ContainerImage => "mcr.microsoft.com/mssql/server:2022-latest";
 
         public override string ContainerExposePort => "1433";
 

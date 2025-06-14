@@ -17,10 +17,8 @@ namespace datntdev.SchemaVersioner.Loaders
 
         public void Write(Snapshot[] snapshots, Settings settings)
         {
-            if (!Directory.Exists(settings.SnapshotOutputPath))
-            {
-                Directory.CreateDirectory(settings.SnapshotOutputPath);
-            }
+            Directory.Delete(settings.SnapshotOutputPath, true);
+            Directory.CreateDirectory(settings.SnapshotOutputPath);
 
             // Create snapshot output files for Tables
             var tablesDirectory = $"{settings.SnapshotOutputPath}/Tables";
@@ -35,16 +33,30 @@ namespace datntdev.SchemaVersioner.Loaders
             snapshots.Where(x => x.Type == SnapshotType.View)
                 .ToList()
                 .ForEach(x => WriteSnapshotFile(x, viewsDirectory));
+
+            // Create snapshot output files for Procedures
+            var proceduresDirectory = $"{settings.SnapshotOutputPath}/Procedures";
+            if (!Directory.Exists(proceduresDirectory)) Directory.CreateDirectory(proceduresDirectory);
+            snapshots.Where(x => x.Type == SnapshotType.Procedure)
+                .ToList()
+                .ForEach(x => WriteSnapshotFile(x, proceduresDirectory));
+
+            // Create snapshot output files for Functions
+            var functionsDirectory = $"{settings.SnapshotOutputPath}/Functions";
+            if (!Directory.Exists(functionsDirectory)) Directory.CreateDirectory(functionsDirectory);
+            snapshots.Where(x => x.Type == SnapshotType.Function)
+                .ToList()
+                .ForEach(x => WriteSnapshotFile(x, functionsDirectory));
         }
 
-        private void WriteSnapshotFile(Snapshot snapshot, string outputPath)
+        private static void WriteSnapshotFile(Snapshot snapshot, string outputPath)
         {
-            var fileName = $"{snapshot.Type.ToString().Substring(0, 1)}__{snapshot.Order}_{snapshot.Description.Replace(" ", "_")}.sql";
+            var fileName = $"{snapshot.Type.ToString().Substring(0, 1)}_{snapshot.Order}__{snapshot.Description.Replace(" ", "_")}.sql";
             var filePath = Path.Combine(outputPath, fileName);
             File.WriteAllText(filePath, snapshot.ContentDDL);
         }
 
-        private Snapshot ParseSnapshot(string filePath)
+        private static Snapshot ParseSnapshot(string filePath)
         {
             var prefix = Path.GetFileName(filePath).Substring(0, 1);
             var type = prefix switch

@@ -1,6 +1,12 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
@@ -63,7 +69,7 @@ namespace datntdev.SchemaVersioner.DbEngines
                 .OrderBy(x => x.Field<string>("TABLE_TYPE"))
                 .Select(x => new 
                 { 
-                    type = x.Field<string>("TABLE_TYPE").Replace("BASE ", ""),
+                    type = x.Field<string>("TABLE_TYPE")!.Replace("BASE ", ""),
                     name = x.Field<string>("TABLE_NAME"),
                     schema = x.Field<string>("TABLE_SCHEMA")
                 })
@@ -80,7 +86,7 @@ namespace datntdev.SchemaVersioner.DbEngines
                     name = x.Field<string>("ROUTINE_NAME"), 
                     schema = x.Field<string>("ROUTINE_SCHEMA") 
                 })
-                .Select(x => $"DROP {x.type.ToUpper()} [{x.schema}].[{x.name}]");
+                .Select(x => $"DROP {x.type!.ToUpper()} [{x.schema}].[{x.name}]");
 
             if (dropRoutinesSqls.Any()) _baseConnector.ExecuteNonQuery(string.Join(";", dropRoutinesSqls));
         }
@@ -96,10 +102,10 @@ namespace datntdev.SchemaVersioner.DbEngines
             return dataTable.AsEnumerable().Select(row => new Migration
             {
                 Type = (MigrationType)row.Field<int>("type"),
-                Version = row.Field<string>("version"),
-                Description = row.Field<string>("description"),
-                Checksum = row.Field<string>("checksum"),
-                InstalledBy = row.Field<string>("installed_by"),
+                Version = row.Field<string>("version")!,
+                Description = row.Field<string>("description")!,
+                Checksum = row.Field<string>("checksum")!,
+                InstalledBy = row.Field<string>("installed_by")!,
                 InstalledAt = row.Field<DateTime>("installed_on"),
                 IsSuccessful = row.Field<bool>("success")
             }).ToArray();
@@ -107,7 +113,63 @@ namespace datntdev.SchemaVersioner.DbEngines
 
         public Snapshot[] GetObjectSnapshots()
         {
-            throw new System.NotImplementedException();
+            var server = new Server(new ServerConnection(((SqlConnection)_baseConnector.DbConnection)));
+            var database = server.Databases[_baseConnector.DbConnection.Database];
+            server.SetDefaultInitFields(typeof(Table), "IsSystemObject");
+            server.SetDefaultInitFields(typeof(View), "IsSystemObject");
+            server.SetDefaultInitFields(typeof(StoredProcedure), "IsSystemObject");
+            server.SetDefaultInitFields(typeof(UserDefinedFunction), "IsSystemObject");
+
+            // Define a Scripter object and set the required scripting options.   
+            var scrp = new Scripter(server);
+            scrp.Options.ScriptDrops = false;
+
+            var snapshots = new List<Snapshot>();
+
+            _logger.LogInformation("Generating DDL for database tables...");
+            var tables = database.Tables.Cast<Table>()
+                .Where(t => !t.IsSystemObject && t.Name != _settings.MetadataTable)
+                .Select((x, i) => GetSnapshortWithScripter(scrp, x, i + 1))
+                .ToArray();
+            _logger.LogInformation("Generating DDL for database views...");
+            var views = database.Views.Cast<View>()
+                .Where(v => !v.IsSystemObject)
+                .Select((x, i) => GetSnapshortWithScripter(scrp, x, i + 1))
+                .ToArray();
+            _logger.LogInformation("Generating DDL for database procedures...");
+            var procedures = database.StoredProcedures.Cast<StoredProcedure>()
+                .Where(sp => !sp.IsSystemObject)
+                .Select((x, i) => GetSnapshortWithScripter(scrp, x, i + 1))
+                .ToArray();
+            _logger.LogInformation("Generating DDL for database functions...");
+            var functions = database.UserDefinedFunctions.Cast<UserDefinedFunction>()
+                .Where(udf => !udf.IsSystemObject)
+                .Select((x, i) => GetSnapshortWithScripter(scrp, x, i + 1))
+                .ToArray();
+
+            return [.. tables, .. views, .. procedures, .. functions];
+        }
+
+        private static Snapshot GetSnapshortWithScripter<TObject>(Scripter scrp, TObject schemaObject, int order)
+            where TObject : ScriptSchemaObjectBase
+        {
+            var type = typeof(TObject) switch
+            {
+                Type t when t == typeof(Table) => SnapshotType.Table,
+                Type t when t == typeof(View) => SnapshotType.View,
+                Type t when t == typeof(StoredProcedure) => SnapshotType.Procedure,
+                Type t when t == typeof(UserDefinedFunction) => SnapshotType.Function,
+                _ => SnapshotType.None,
+            };
+            var sc = scrp.Script(new Urn[] { schemaObject.Urn });
+            var content = string.Join($"\r\nGO\r\n", sc.Cast<string>());
+            return new Snapshot
+            {
+                Type = type,
+                Order = order.ToString("D3"),
+                Description = schemaObject.Name,
+                ContentDDL = content,
+            };
         }
 
         public void InsertMigrationRecord(Migration migration)
