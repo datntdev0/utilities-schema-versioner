@@ -6,23 +6,26 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
     public class ProgramCli_ShouldExecute(DbConnection connection)
         : ActualConnectionFixture<DbConnection>(connection), IClassFixture<DbConnection>
     {
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        // Add at the top of the file, inside the namespace but outside the class
+        public const bool SkipTests = true;
+
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _01_ShouldInit_Successfully()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--snapshot-paths", "Resources/MsFabric/Snapshots",
-                "init",
             };
+            Program.Main([.. args, "erase"]);
 
             // Act
-            Program.Main(args);
+            Program.Main([.. args, "init"]);
 
             // Assert
             var dataTable = ExecuteQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES;").AsEnumerable();
@@ -68,16 +71,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Assert.NotEmpty(thirdMigration.Field<string>("checksum")!);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _02_ShouldInit_RisedException_WhenMetadataTableExists()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--snapshot-paths", "Resources/MsFabric/Snapshots",
                 "init",
@@ -88,16 +91,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Assert.Equal("Metadata table already exists. We only initialize for new database", ex.Message);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _03_ShouldErase_Successfully()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--snapshot-paths", "Resources/MsFabric/Snapshots",
                 "erase",
@@ -118,16 +121,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Assert.DoesNotContain(dataTable, row => row["ROUTINE_NAME"].ToString() == "CountTableRecords");
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _04_ShouldRepair_Successfully()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--snapshot-paths", "Resources/MsFabric/Snapshots",
                 "repair",
@@ -152,16 +155,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Assert.NotEmpty(thirdMigration.Field<string>("checksum")!);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _05_ShouldValidate_AllMigration_AreSuccess()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--snapshot-paths", "Resources/MsFabric/Snapshots",
                 "validate",
@@ -171,7 +174,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Program.Main(args);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _06_ShouldValidate_OneMigration_ChecksumMismatch()
         {
             // Arrange
@@ -180,9 +183,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--snapshot-paths", "Resources/MsFabric/Snapshots",
                 "validate",
@@ -192,7 +195,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Program.Main(args);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _07_ShouldValidate_AllMigration_ArePending()
         {
             // Arrange
@@ -200,9 +203,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--snapshot-paths", "Resources/MsFabric/Snapshots",
                 "validate",
@@ -212,16 +215,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Program.Main(args);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _08_ShouldUpgrade_Successfully_UpgradeToTargetVersion()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations",
                 "--target-version", "1.0.0",
                 "upgrade",
@@ -274,16 +277,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
                 row["ROUTINE_SCHEMA"].ToString() == "dbo");
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _09_ShouldUpgrade_Successfully_UpgradeToLatestVersion()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "upgrade",
             };
@@ -341,16 +344,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
                 row["ROUTINE_SCHEMA"].ToString() == "dbo");
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
         public void _10_ShouldUpgrade_RisedException_WhenTargetVersionNotExists()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--target-version", "2.0.0",
                 "upgrade",
@@ -360,16 +363,105 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Assert.Equal("Target version '2.0.0' does not exist in migration scripts.", ex.Message);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
-        public void _11_ShouldDowngrade_Successfully_DowngradeTheLatestVersion()
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
+        public void _11_ShouldSnapshot_Successfully()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
+                "--migration-paths", "Resources/MsFabric/Migrations",
+                "--snapshot-paths", "Resources/MsFabric/Snapshots",
+                "--snapshot-output-path", "Resources/MsFabric/SnapshotsOutput",
+                "snapshot",
+            };
+
+            // Act
+            Program.Main(args);
+
+            // Assert
+            var snapshotOutputFiles = Directory.GetFiles(
+                "Resources/MsFabric/SnapshotsOutput", "*.sql", SearchOption.AllDirectories);
+            Assert.Equal(8, snapshotOutputFiles.Length);
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("T_001__Table1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("T_002__Table2.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_001__View1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_002__View1_1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_003__View2.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("V_004__View2_1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("P_001__Procedure1.sql"));
+            Assert.Contains(snapshotOutputFiles, file => file.Contains("F_001__CountTableRecords.sql"));
+        }
+
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
+        public void _12_ShouldSnapshot_Successfully_RunInitFromSnapshots()
+        {
+            // Arrange
+            var args = new string[]
+            {
+                "--database-type", "msfabric",
+                "--metadata-schema", "log",
+                "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
+                "--migration-paths", "Resources/MsFabric/Migrations",
+                "--snapshot-paths", "Resources/MsFabric/SnapshotsOutput",
+            };
+            Program.Main([.. args, "erase"]);
+
+            // Act
+            Program.Main([.. args, "init"]);
+
+            // Assert
+            var dataTable = ExecuteQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES;").AsEnumerable();
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "Table1" &&
+                row["TABLE_TYPE"].ToString() == "BASE TABLE" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "Table2" &&
+                row["TABLE_TYPE"].ToString() == "BASE TABLE" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "View1" &&
+                row["TABLE_TYPE"].ToString() == "VIEW" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "View1_1" &&
+                row["TABLE_TYPE"].ToString() == "VIEW" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "View2" &&
+                row["TABLE_TYPE"].ToString() == "VIEW" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["TABLE_NAME"].ToString() == "View2_1" &&
+                row["TABLE_TYPE"].ToString() == "VIEW" &&
+                row["TABLE_SCHEMA"].ToString() == "dbo");
+
+            dataTable = ExecuteQuery("SELECT * FROM INFORMATION_SCHEMA.ROUTINES;").AsEnumerable();
+            Assert.Contains(dataTable, row =>
+                row["ROUTINE_NAME"].ToString() == "Procedure1" &&
+                row["ROUTINE_TYPE"].ToString() == "PROCEDURE" &&
+                row["ROUTINE_SCHEMA"].ToString() == "dbo");
+            Assert.Contains(dataTable, row =>
+                row["ROUTINE_NAME"].ToString() == "CountTableRecords" &&
+                row["ROUTINE_TYPE"].ToString() == "FUNCTION" &&
+                row["ROUTINE_SCHEMA"].ToString() == "dbo");
+        }
+
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
+        public void _13_ShouldDowngrade_Successfully_DowngradeTheLatestVersion()
+        {
+            // Arrange
+            var args = new string[]
+            {
+                "--database-type", "msfabric",
+                "--metadata-schema", "log",
+                "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations",
                 "downgrade",
             };
@@ -422,16 +514,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Assert.Empty(dataTable);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
-        public void _12_ShouldDowngrade_Successfully_DowngradeToTargetVersion()
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
+        public void _14_ShouldDowngrade_Successfully_DowngradeToTargetVersion()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--target-version", "1.0.0",
                 "downgrade",
@@ -453,16 +545,16 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
             Assert.Empty(dataTable);
         }
 
-        [Fact(Skip = "Should setup Fabric Connection from Cloud")]
-        public void _13_ShouldDowngrade_RisedException_WhenTargetVersionNotExists()
+        [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
+        public void _15_ShouldDowngrade_RisedException_WhenTargetVersionNotExists()
         {
             // Arrange
             var args = new string[]
             {
                 "--database-type", "msfabric",
-                "--connection-string", _dbConnection.ConnectionString,
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
+                "--connection-string", _dbConnection.ConnectionString,
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
                 "--target-version", "2.0.0",
                 "downgrade",

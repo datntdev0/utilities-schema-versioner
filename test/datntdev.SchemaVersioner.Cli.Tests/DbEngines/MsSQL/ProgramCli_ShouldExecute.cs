@@ -377,6 +377,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             var args = new string[]
             {
                 "--database-type", "mssql",
+                "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
                 "--connection-string", _container.ConnectionString,
                 "--migration-paths", "Resources/MsSQL/Migrations",

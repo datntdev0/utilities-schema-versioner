@@ -81,7 +81,7 @@ namespace datntdev.SchemaVersioner.Interfaces
             using var cmd = DbConnection.CreateCommand();
             cmd.CommandText = sql;
 
-            var result = (TResult)cmd.ExecuteScalar();
+            var result = (TResult)cmd.ExecuteScalar()!;
 
             return result;
         }

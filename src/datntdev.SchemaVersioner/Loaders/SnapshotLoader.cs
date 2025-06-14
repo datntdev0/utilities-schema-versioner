@@ -17,35 +17,34 @@ namespace datntdev.SchemaVersioner.Loaders
 
         public void Write(Snapshot[] snapshots, Settings settings)
         {
-            Directory.Delete(settings.SnapshotOutputPath, true);
+            if (Directory.Exists(settings.SnapshotOutputPath))
+                Directory.Delete(settings.SnapshotOutputPath, true);
+
+            var tablesDirectory = $"{settings.SnapshotOutputPath}/Tables";
+            var viewsDirectory = $"{settings.SnapshotOutputPath}/Views";
+            var proceduresDirectory = $"{settings.SnapshotOutputPath}/Procedures";
+            var functionsDirectory = $"{settings.SnapshotOutputPath}/Functions";
+
             Directory.CreateDirectory(settings.SnapshotOutputPath);
+            Directory.CreateDirectory(tablesDirectory);
+            Directory.CreateDirectory(viewsDirectory);
+            Directory.CreateDirectory(proceduresDirectory);
+            Directory.CreateDirectory(functionsDirectory);
 
             // Create snapshot output files for Tables
-            var tablesDirectory = $"{settings.SnapshotOutputPath}/Tables";
-            if (!Directory.Exists(tablesDirectory)) Directory.CreateDirectory(tablesDirectory);
-            snapshots.Where(x => x.Type == SnapshotType.Table)
-                .ToList()
+            snapshots.Where(x => x.Type == SnapshotType.Table).ToList()
                 .ForEach(x => WriteSnapshotFile(x, tablesDirectory));
 
             // Create snapshot output files for Views
-            var viewsDirectory = $"{settings.SnapshotOutputPath}/Views";
-            if (!Directory.Exists(viewsDirectory)) Directory.CreateDirectory(viewsDirectory);
-            snapshots.Where(x => x.Type == SnapshotType.View)
-                .ToList()
+            snapshots.Where(x => x.Type == SnapshotType.View).ToList()
                 .ForEach(x => WriteSnapshotFile(x, viewsDirectory));
 
             // Create snapshot output files for Procedures
-            var proceduresDirectory = $"{settings.SnapshotOutputPath}/Procedures";
-            if (!Directory.Exists(proceduresDirectory)) Directory.CreateDirectory(proceduresDirectory);
-            snapshots.Where(x => x.Type == SnapshotType.Procedure)
-                .ToList()
+            snapshots.Where(x => x.Type == SnapshotType.Procedure).ToList()
                 .ForEach(x => WriteSnapshotFile(x, proceduresDirectory));
 
             // Create snapshot output files for Functions
-            var functionsDirectory = $"{settings.SnapshotOutputPath}/Functions";
-            if (!Directory.Exists(functionsDirectory)) Directory.CreateDirectory(functionsDirectory);
-            snapshots.Where(x => x.Type == SnapshotType.Function)
-                .ToList()
+            snapshots.Where(x => x.Type == SnapshotType.Function).ToList()
                 .ForEach(x => WriteSnapshotFile(x, functionsDirectory));
         }
 
