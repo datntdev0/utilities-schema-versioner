@@ -126,8 +126,6 @@ namespace datntdev.SchemaVersioner.DbEngines
             var scrp = new Scripter(server);
             scrp.Options.ScriptDrops = false;
 
-            var snapshots = new List<Snapshot>();
-
             _logger.LogInformation("Generating DDL for database tables...");
             var tables = database.Tables.Cast<Table>()
                 .Where(t => !t.IsSystemObject && t.Name != _settings.MetadataTable)

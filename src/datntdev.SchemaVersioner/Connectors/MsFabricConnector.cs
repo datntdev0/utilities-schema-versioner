@@ -18,9 +18,9 @@ namespace datntdev.SchemaVersioner.Connectors
 
         public override void ExecuteComplexContent(string sql)
         {
-            var splites = Regex.Split(sql, @"\bGO\b", RegexOptions.Multiline);
+            var splits = Regex.Split(sql, @"\bGO\b", RegexOptions.Multiline);
 
-            splites.Where(x => !string.IsNullOrWhiteSpace(x))
+            splits.Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.Trim()).ToList()
                 .ForEach(ExecuteNonQuery);
         }

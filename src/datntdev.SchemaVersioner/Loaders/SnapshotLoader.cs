@@ -20,10 +20,10 @@ namespace datntdev.SchemaVersioner.Loaders
             if (Directory.Exists(settings.SnapshotOutputPath))
                 Directory.Delete(settings.SnapshotOutputPath, true);
 
-            var tablesDirectory = $"{settings.SnapshotOutputPath}/Tables";
-            var viewsDirectory = $"{settings.SnapshotOutputPath}/Views";
-            var proceduresDirectory = $"{settings.SnapshotOutputPath}/Procedures";
-            var functionsDirectory = $"{settings.SnapshotOutputPath}/Functions";
+            var tablesDirectory = Path.Combine(settings.SnapshotOutputPath, "Tables");
+            var viewsDirectory = Path.Combine(settings.SnapshotOutputPath, "Views");
+            var proceduresDirectory = Path.Combine(settings.SnapshotOutputPath, "Procedures");
+            var functionsDirectory = Path.Combine(settings.SnapshotOutputPath, "Functions");
 
             Directory.CreateDirectory(settings.SnapshotOutputPath);
             Directory.CreateDirectory(tablesDirectory);
