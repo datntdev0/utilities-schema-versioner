@@ -1,0 +1,64 @@
+name: Publish NuGet Package
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Package version (default: from csproj)'
+        required: false
+        type: string
+      prerelease:
+        description: 'Publish as prerelease with version suffix'
+        required: false
+        type: boolean
+        default: true
+      publish:
+        description: 'Push package to NuGet'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish-nuget:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Build Solution
+        run: dotnet build --configuration Release
+
+      - name: Pack NuGet package (prerelease)
+        if: ${{ inputs.prerelease }}
+        run: |
+          VERSION_SUFFIX="-beta.$(date +'%Y%m%d')"
+          dotnet pack src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj \
+          --configuration Release --output ./nupkg --version-suffix $VERSION_SUFFIX
+
+      - name: Pack NuGet package (versioned)
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            dotnet pack src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj \
+            --configuration Release --output ./nupkg /p:PackageVersion=${{ inputs.version }}
+          else
+            dotnet pack src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj \
+            --configuration Release --output ./nupkg
+          fi
+
+      - name: Upload NuGet package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: datntdev.SchemaVersioner(packages)
+          path: ./nupkg/*.nupkg
+
+      - name: Publish to NuGet
+        if: ${{ inputs.publish }}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
