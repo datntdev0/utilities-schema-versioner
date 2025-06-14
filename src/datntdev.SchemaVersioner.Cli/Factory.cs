@@ -14,8 +14,9 @@ namespace datntdev.SchemaVersioner.Cli
 
             IDbConnection connection = settings.DbEngineType switch
             {
-                DbEngineType.SQLite => new SqliteConnection(settings.ConnectionString),
                 DbEngineType.MsSQL => new SqlConnection(settings.ConnectionString),
+                DbEngineType.SQLite => new SqliteConnection(settings.ConnectionString),
+                DbEngineType.MsFabric => new SqlConnection(settings.ConnectionString),
                 _ => throw new NotSupportedException($"Database type is not supported.")
             };
 

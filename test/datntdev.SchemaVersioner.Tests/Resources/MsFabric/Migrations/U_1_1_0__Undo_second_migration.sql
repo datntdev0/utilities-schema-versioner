@@ -1,0 +1,3 @@
+DROP VIEW IF EXISTS [dbo].[View2];
+DROP VIEW IF EXISTS [dbo].[View2_1];
+DROP TABLE IF EXISTS [dbo].[Table2];

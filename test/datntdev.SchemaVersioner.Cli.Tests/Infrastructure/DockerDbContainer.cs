@@ -11,9 +11,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
             ? new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine")).CreateClient()
             : new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock")).CreateClient();
 
+        public IDbConnection DbConnection { get; protected set; } = default!;
+      
         public abstract string ConnectionString { get; }
-        public abstract IDbConnection DbConnection { get; protected set; }
-
         public abstract string ContainerName { get; }
         public abstract string ContainerImage { get; }
         public abstract string ContainerExposePort { get; }

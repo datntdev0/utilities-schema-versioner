@@ -15,15 +15,13 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
 
         public override string ContainerName => "schema-versioner-mssql";
 
-        public override string ContainerImage => "mcr.microsoft.com/mssql/server:latest";
+        public override string ContainerImage => "mcr.microsoft.com/mssql/server:2022-latest";
 
         public override string ContainerExposePort => "1433";
 
         public override string ContainerHostPort => "1433";
 
         public override string[] ContainerEnv => ["ACCEPT_EULA=Y", $"MSSQL_SA_PASSWORD={Password}"];
-
-        public override IDbConnection DbConnection { get; protected set; }
 
         public DbContainer()
         {

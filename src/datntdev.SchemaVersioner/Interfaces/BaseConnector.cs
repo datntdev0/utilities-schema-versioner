@@ -8,8 +8,9 @@ namespace datntdev.SchemaVersioner.Interfaces
 {
     internal abstract class BaseConnector : IDisposable
     {
+        public readonly IDbConnection DbConnection;
+
         protected readonly ILogger _logger;
-        protected readonly IDbConnection _dbConnection;
 
         protected abstract string SQL_CheckVersion { get; }
         protected abstract string SQL_GetVersion { get; }
@@ -17,7 +18,7 @@ namespace datntdev.SchemaVersioner.Interfaces
         public BaseConnector(SchemaVersionerContext context)
         {
             _logger = context.Logger;
-            _dbConnection = context.DbConnection;
+            DbConnection = context.DbConnection;
             OpenConnection();
         }
 
@@ -43,7 +44,7 @@ namespace datntdev.SchemaVersioner.Interfaces
         {
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
 
-            using var cmd = _dbConnection.CreateCommand();
+            using var cmd = DbConnection.CreateCommand();
             cmd.CommandText = sql;
 
             using var reader = cmd.ExecuteReader();
@@ -53,21 +54,21 @@ namespace datntdev.SchemaVersioner.Interfaces
             return dataTable;
         }
 
-        public void ExecuteNonQuery(string sql)
+        public virtual void ExecuteComplexContent(string sql)
         {
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
 
-            using var cmd = _dbConnection.CreateCommand();
+            using var cmd = DbConnection.CreateCommand();
             cmd.CommandText = sql;
 
             cmd.ExecuteNonQuery();
         }
 
-        public virtual void ExecuteComplexContent(string sql)
+        public void ExecuteNonQuery(string sql)
         {
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
 
-            using var cmd = _dbConnection.CreateCommand();
+            using var cmd = DbConnection.CreateCommand();
             cmd.CommandText = sql;
 
             cmd.ExecuteNonQuery();
@@ -77,10 +78,10 @@ namespace datntdev.SchemaVersioner.Interfaces
         {
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
 
-            using var cmd = _dbConnection.CreateCommand();
+            using var cmd = DbConnection.CreateCommand();
             cmd.CommandText = sql;
 
-            var result = (TResult)cmd.ExecuteScalar();
+            var result = (TResult)cmd.ExecuteScalar()!;
 
             return result;
         }
@@ -90,7 +91,7 @@ namespace datntdev.SchemaVersioner.Interfaces
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
             ArgumentNullHelper.ThrowIfNull(query, nameof(query));
 
-            using var cmd = _dbConnection.CreateCommand();
+            using var cmd = DbConnection.CreateCommand();
             cmd.CommandText = sql;
 
             var result = query(cmd);
@@ -102,34 +103,34 @@ namespace datntdev.SchemaVersioner.Interfaces
         {
             try
             {
-                if (_dbConnection.State == ConnectionState.Broken)
+                if (DbConnection.State == ConnectionState.Broken)
                 {
-                    _dbConnection.Close();
+                    DbConnection.Close();
                 }
 
-                if (_dbConnection.State != ConnectionState.Open)
+                if (DbConnection.State != ConnectionState.Open)
                 {
-                    _dbConnection.Open();
+                    DbConnection.Open();
                 }
             }
             catch (Exception)
             {
-                _logger.LogError("Failed to open database connection: {0}", _dbConnection.ConnectionString);
+                _logger.LogError("Failed to open database connection: {0}", DbConnection.ConnectionString);
                 throw new ApplicationException("Failed to open database connection.");
             }
         }
 
         public void CloseConnection()
         {
-            if (_dbConnection.State == ConnectionState.Open)
+            if (DbConnection.State == ConnectionState.Open)
             {
-                _dbConnection.Close();
+                DbConnection.Close();
             }
         }
 
         public void Dispose()
         {
-            _dbConnection.Dispose();
+            DbConnection.Dispose();
         }
     }
 }

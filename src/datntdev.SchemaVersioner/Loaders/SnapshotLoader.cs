@@ -17,34 +17,45 @@ namespace datntdev.SchemaVersioner.Loaders
 
         public void Write(Snapshot[] snapshots, Settings settings)
         {
-            if (!Directory.Exists(settings.SnapshotOutputPath))
-            {
-                Directory.CreateDirectory(settings.SnapshotOutputPath);
-            }
+            if (Directory.Exists(settings.SnapshotOutputPath))
+                Directory.Delete(settings.SnapshotOutputPath, true);
+
+            var tablesDirectory = Path.Combine(settings.SnapshotOutputPath, "Tables");
+            var viewsDirectory = Path.Combine(settings.SnapshotOutputPath, "Views");
+            var proceduresDirectory = Path.Combine(settings.SnapshotOutputPath, "Procedures");
+            var functionsDirectory = Path.Combine(settings.SnapshotOutputPath, "Functions");
+
+            Directory.CreateDirectory(settings.SnapshotOutputPath);
+            Directory.CreateDirectory(tablesDirectory);
+            Directory.CreateDirectory(viewsDirectory);
+            Directory.CreateDirectory(proceduresDirectory);
+            Directory.CreateDirectory(functionsDirectory);
 
             // Create snapshot output files for Tables
-            var tablesDirectory = $"{settings.SnapshotOutputPath}/Tables";
-            if (!Directory.Exists(tablesDirectory)) Directory.CreateDirectory(tablesDirectory);
-            snapshots.Where(x => x.Type == SnapshotType.Table)
-                .ToList()
+            snapshots.Where(x => x.Type == SnapshotType.Table).ToList()
                 .ForEach(x => WriteSnapshotFile(x, tablesDirectory));
 
             // Create snapshot output files for Views
-            var viewsDirectory = $"{settings.SnapshotOutputPath}/Views";
-            if (!Directory.Exists(viewsDirectory)) Directory.CreateDirectory(viewsDirectory);
-            snapshots.Where(x => x.Type == SnapshotType.View)
-                .ToList()
+            snapshots.Where(x => x.Type == SnapshotType.View).ToList()
                 .ForEach(x => WriteSnapshotFile(x, viewsDirectory));
+
+            // Create snapshot output files for Procedures
+            snapshots.Where(x => x.Type == SnapshotType.Procedure).ToList()
+                .ForEach(x => WriteSnapshotFile(x, proceduresDirectory));
+
+            // Create snapshot output files for Functions
+            snapshots.Where(x => x.Type == SnapshotType.Function).ToList()
+                .ForEach(x => WriteSnapshotFile(x, functionsDirectory));
         }
 
-        private void WriteSnapshotFile(Snapshot snapshot, string outputPath)
+        private static void WriteSnapshotFile(Snapshot snapshot, string outputPath)
         {
-            var fileName = $"{snapshot.Type.ToString().Substring(0, 1)}__{snapshot.Order}_{snapshot.Description.Replace(" ", "_")}.sql";
+            var fileName = $"{snapshot.Type.ToString().Substring(0, 1)}_{snapshot.Order}__{snapshot.Description.Replace(" ", "_")}.sql";
             var filePath = Path.Combine(outputPath, fileName);
             File.WriteAllText(filePath, snapshot.ContentDDL);
         }
 
-        private Snapshot ParseSnapshot(string filePath)
+        private static Snapshot ParseSnapshot(string filePath)
         {
             var prefix = Path.GetFileName(filePath).Substring(0, 1);
             var type = prefix switch
