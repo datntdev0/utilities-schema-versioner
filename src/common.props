@@ -1,0 +1,17 @@
+<Project>
+	<PropertyGroup>
+		<RepositoryType>git</RepositoryType>
+		<TargetFrameworks>net9.0;net8.0</TargetFrameworks>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/datntdev/utilities-schema-versioner</RepositoryUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+
+</Project>
