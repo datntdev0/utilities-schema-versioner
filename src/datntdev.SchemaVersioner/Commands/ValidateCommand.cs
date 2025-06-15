@@ -47,7 +47,7 @@ namespace datntdev.SchemaVersioner.Commands
                 }
             }
             var tableOutput = consoleTable.ToString().Replace("\r", "");
-            _logger.LogInformation("Comparing migration table with migration folders...\n{0}", tableOutput);
+            _logger.LogInformation("Comparing migration table with migration folders...\n{tableOutput}", tableOutput);
 
             return new CommandOutput<CommandOutputValidate>(new CommandOutputValidate()
             {

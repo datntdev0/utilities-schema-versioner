@@ -40,6 +40,8 @@ namespace datntdev.SchemaVersioner.Commands
             // Seed all migration records to metadata table
             migrations.ForEach(_dbEngine.InsertMigrationRecord);
 
+            _logger.LogInformation("Database initialized successfully with {Count} migrations.", migrations.Count);
+
             return new CommandOutput<CommandOutputInit>(new CommandOutputInit());
         }
     }

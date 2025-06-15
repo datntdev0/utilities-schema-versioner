@@ -67,6 +67,9 @@ namespace datntdev.SchemaVersioner.Commands
                 _baseConnector.ExecuteComplexContent(migration.Content);
             });
 
+            _logger.LogInformation("Database upgraded successfully to version {targetVersion} with {Count} migrations.",
+                targetVersion, runningMigrations.Count);
+
             return new CommandOutput<CommandOutputUpgrade>(new CommandOutputUpgrade());
         }
     }
