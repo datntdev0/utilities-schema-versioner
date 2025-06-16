@@ -6,7 +6,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
@@ -68,29 +67,37 @@ namespace datntdev.SchemaVersioner.DbEngines
                 SELECT * FROM INFORMATION_SCHEMA.TABLES
                 WHERE TABLE_SCHEMA <> 'sys' AND TABLE_SCHEMA <> 'queryinsights'";
             var dropSqls = _baseConnector.ExecuteQuery(getTablesAndViews).AsEnumerable()
-                .OrderBy(x => x.Field<string>("TABLE_TYPE"))
-                .Select(x => new 
-                { 
+                .Select(x => new
+                {
                     type = x.Field<string>("TABLE_TYPE")!.Replace("BASE ", ""),
                     name = x.Field<string>("TABLE_NAME"),
                     schema = x.Field<string>("TABLE_SCHEMA")
                 })
-                .Select(x => $"DROP {x.type.ToUpper()} [{x.schema}].[{x.name}]");
+                .OrderBy(x => x.type).ThenBy(x => x.name);
 
-            if (dropSqls.Any()) _baseConnector.ExecuteNonQuery(string.Join(";", dropSqls));
+            dropSqls.ToList().ForEach(x =>
+            {
+                _logger.LogInformation("Dropping {Type} [{Schema}].[{Name}]", x.type, x.schema, x.name);
+                var sql = $"DROP {x.type.ToUpper()} [{x.schema}].[{x.name}]";
+                _baseConnector.ExecuteNonQuery(sql);
+            });
 
             var getRoutines = @"SELECT * FROM INFORMATION_SCHEMA.ROUTINES";
             var dropRoutinesSqls = _baseConnector.ExecuteQuery(getRoutines).AsEnumerable()
-                .OrderBy(x => x.Field<string>("ROUTINE_TYPE"))
-                .Select(x => new 
-                { 
-                    type = x.Field<string>("ROUTINE_TYPE"), 
-                    name = x.Field<string>("ROUTINE_NAME"), 
-                    schema = x.Field<string>("ROUTINE_SCHEMA") 
+                .Select(x => new
+                {
+                    type = x.Field<string>("ROUTINE_TYPE"),
+                    name = x.Field<string>("ROUTINE_NAME"),
+                    schema = x.Field<string>("ROUTINE_SCHEMA")
                 })
-                .Select(x => $"DROP {x.type!.ToUpper()} [{x.schema}].[{x.name}]");
+                .OrderBy(x => x.type).ThenBy(x => x.name);
 
-            if (dropRoutinesSqls.Any()) _baseConnector.ExecuteNonQuery(string.Join(";", dropRoutinesSqls));
+            dropRoutinesSqls.ToList().ForEach(x =>
+            {
+                _logger.LogInformation("Dropping {Type} [{Schema}].[{Name}]", x.type, x.schema, x.name);
+                var sql = $"DROP {x.type!.ToUpper()} [{x.schema}].[{x.name}]";
+                _baseConnector.ExecuteNonQuery(sql);
+            });
         }
 
         public Migration[] GetMetadataTable()
