@@ -84,6 +84,8 @@ namespace datntdev.SchemaVersioner.Commands
                 });
             }
 
+            _logger.LogInformation("Downgrade completed successfully.");
+
             return new CommandOutput<CommandOutputDowngrade>(new CommandOutputDowngrade());
         }
     }

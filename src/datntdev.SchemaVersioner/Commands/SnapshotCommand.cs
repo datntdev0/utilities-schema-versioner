@@ -17,6 +17,8 @@ namespace datntdev.SchemaVersioner.Commands
             _logger.LogInformation("Writing DDL to output path: {OutputPath}", _settings.SnapshotOutputPath);
             new SnapshotLoader().Write(snapshots, _settings);
 
+            _logger.LogInformation("Database snapshot created successfully with {Length} objects.", snapshots.Length);
+
             return new CommandOutput<CommandOutputSnapshot>(new CommandOutputSnapshot());
         }
     }

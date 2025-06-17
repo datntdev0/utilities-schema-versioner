@@ -10,6 +10,7 @@ namespace datntdev.SchemaVersioner.Commands
         {
             _logger.LogInformation("Erasing database...");
             _dbEngine.EraseDatabase();
+            _logger.LogInformation("Database erased successfully.");
 
             return new CommandOutput<CommandOutputErase>(new CommandOutputErase());
         }

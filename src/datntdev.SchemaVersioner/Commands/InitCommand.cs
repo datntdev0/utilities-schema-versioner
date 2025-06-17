@@ -25,7 +25,11 @@ namespace datntdev.SchemaVersioner.Commands
                 .OrderBy(x => x.Type).ThenBy(x => x.Order).ToList();
 
             // Run all schema snapshots to init new database
-            snapshots.ForEach(x => _baseConnector.ExecuteComplexContent(x.Content));
+            snapshots.ForEach(x =>
+            {
+                _logger.LogInformation("Executing {Type} snapshot: {Description}", x.Type, x.Description);
+                _baseConnector.ExecuteComplexContent(x.Content);
+            });
 
             // Create metadata table for migrations
             _logger.LogInformation("Creating metadata table for migrations...");
@@ -39,6 +43,8 @@ namespace datntdev.SchemaVersioner.Commands
 
             // Seed all migration records to metadata table
             migrations.ForEach(_dbEngine.InsertMigrationRecord);
+
+            _logger.LogInformation("Database initialized successfully with {Count} migrations.", migrations.Count);
 
             return new CommandOutput<CommandOutputInit>(new CommandOutputInit());
         }

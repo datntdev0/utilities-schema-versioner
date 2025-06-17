@@ -2,35 +2,18 @@ name: Automatic CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "release" ]
+  create:
+    tags:
+      - '*'
 
 jobs:
   unit-tests:
-    name: Run C# Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    uses: ./.github/workflows/sub_unit_tests.yml
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build solution
-        run: dotnet build --no-restore --configuration Release
-
-      - name: Run tests
-        run: dotnet test --no-build --configuration Release
-
-  publish-nuget:
-    name: Publish to NuGet
+  build-cli:
     needs: unit-tests
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,19 +23,27 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build library
-        run: dotnet build src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj --configuration Release
-
-      - name: Pack NuGet package
+      - name: Build CLI tool for net9.0 (Windows .exe)
         run: |
-          VERSION_SUFFIX=$(date +"%Y%m%d")-beta
-          dotnet pack src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj --configuration Release --output ./nupkg --version-suffix $VERSION_SUFFIX
-
-      - name: Publish to NuGet
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          dotnet build src/datntdev.SchemaVersioner.Cli/datntdev.SchemaVersioner.Cli.csproj \
+          --configuration Release --framework net9.0 --runtime win-x64
+      
+      - name: Publish CLI tool for net9.0 (Windows .exe)
         run: |
-          dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet publish src/datntdev.SchemaVersioner.Cli/datntdev.SchemaVersioner.Cli.csproj --no-restore \
+          --configuration Release --framework net9.0 --runtime win-x64 \
+          --output ./bin/cli/net9.0-win-x64 --self-contained false
+
+      - name: Upload CLI tool as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: datntdev.SchemaVersioner.Cli(x64)
+          path: ./bin/cli/net9.0-win-x64
+
+  publish-packages:
+    needs: unit-tests
+    uses: ./.github/workflows/sub_publish_nuget.yml
+    with:
+      publish: true
+      version: ${{ github.event_name == 'create' && startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+    secrets: inherit
