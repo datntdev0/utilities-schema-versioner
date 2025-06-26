@@ -1,6 +1,5 @@
 ﻿using datntdev.SchemaVersioner.Cli.Tests.Infrastructure;
 using Microsoft.Data.SqlClient;
-using System.Data;
 
 namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
 {

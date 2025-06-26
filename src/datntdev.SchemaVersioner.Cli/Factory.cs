@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using System.Data;
 
 namespace datntdev.SchemaVersioner.Cli
@@ -17,6 +18,7 @@ namespace datntdev.SchemaVersioner.Cli
                 DbEngineType.MsSQL => new SqlConnection(settings.ConnectionString),
                 DbEngineType.SQLite => new SqliteConnection(settings.ConnectionString),
                 DbEngineType.MsFabric => new SqlConnection(settings.ConnectionString),
+                DbEngineType.PostgreSQL => new NpgsqlConnection(settings.ConnectionString),
                 _ => throw new NotSupportedException($"Database type is not supported.")
             };
 
