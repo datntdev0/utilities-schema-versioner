@@ -91,5 +91,19 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
             Assert.Equal("Metadata table already exists. We only initialize for new database", ex.Message);
         }
 
+        protected override IEnumerable<dynamic> GetFunctionsAndProcedures()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override IEnumerable<dynamic> GetMetadata()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override IEnumerable<dynamic> GetTablesAndViews()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
