@@ -29,6 +29,7 @@ jobs:
       - name: Pull database images for unit tests
         run: |
           docker pull mcr.microsoft.com/mssql/server:latest
+          docker pull postgres:latest
 
       - name: Install ReportGenerator
         if: ${{ inputs.coverage }}

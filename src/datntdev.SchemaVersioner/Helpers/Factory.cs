@@ -56,6 +56,7 @@ namespace datntdev.SchemaVersioner.Helpers
                     DbEngineType.MsSQL => new Connectors.MsSQLConnector(context),
                     DbEngineType.SQLite => new Connectors.SQLiteConnector(context),
                     DbEngineType.MsFabric => new Connectors.MsFabricConnector(context),
+                    DbEngineType.PostgreSQL => new Connectors.PostgreSQLConnector(context),
                     _ => null,
                 };
 
@@ -75,6 +76,7 @@ namespace datntdev.SchemaVersioner.Helpers
                 DbEngineType.MsSQL => new DbEngines.MsSQLDbEngine(context),
                 DbEngineType.SQLite => new DbEngines.SQLiteDbEngine(context),
                 DbEngineType.MsFabric => new DbEngines.MsFabricDbEngine(context),
+                DbEngineType.PostgreSQL => new DbEngines.PostgreSQLDbEngine(context),
                 _ => throw new NotSupportedException($"Not found any database engine supporting your connection."),
             };
         }

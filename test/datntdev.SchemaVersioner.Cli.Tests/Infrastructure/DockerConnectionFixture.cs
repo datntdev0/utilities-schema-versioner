@@ -4,7 +4,7 @@ using System.Data;
 namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
 {
     [TestCaseOrderer("datntdev.SchemaVersioner.Tests.Framework.AlphabeticalOrderer", "datntdev.SchemaVersioner.Tests")]
-    public class DockerConnectionFixture<TContainer>(TContainer container) : IDisposable
+    public abstract class DockerConnectionFixture<TContainer>(TContainer container) : IDisposable
         where TContainer : DockerDbContainer, new()
     {
         protected readonly TContainer _container = container;
@@ -17,7 +17,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
         protected DataTable ExecuteQuery(string sql)
         {
             ArgumentNullHelper.ThrowIfNull(sql, nameof(sql));
-           
+
             using var cmd = _container.DbConnection.CreateCommand();
             cmd.CommandText = sql;
             using var reader = cmd.ExecuteReader();
@@ -34,5 +34,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
             cmd.CommandText = sql;
             cmd.ExecuteNonQuery();
         }
+
+        protected abstract IEnumerable<dynamic> GetMetadata();
+        protected abstract IEnumerable<dynamic> GetTablesAndViews();
+        protected abstract IEnumerable<dynamic> GetFunctionsAndProcedures();
     }
 }

@@ -194,7 +194,8 @@ namespace datntdev.SchemaVersioner.DbEngines
             var sql = $@"
                 SELECT COUNT(*) 
                 FROM INFORMATION_SCHEMA.TABLES 
-                WHERE TABLE_SCHEMA = '{_settings.MetadataSchema}' AND TABLE_NAME = '{_settings.MetadataTable}';";
+                WHERE TABLE_SCHEMA = '{_settings.MetadataSchema}' 
+                AND TABLE_NAME = '{_settings.MetadataTable}';";
             return _baseConnector.ExecuteScalar<int>(sql) == 1;
         }
     }

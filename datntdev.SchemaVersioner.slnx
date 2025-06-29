@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="src/common.props" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/datntdev.SchemaVersioner.Cli/datntdev.SchemaVersioner.Cli.csproj" />
     <Project Path="src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj" />
