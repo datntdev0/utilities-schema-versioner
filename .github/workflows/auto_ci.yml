@@ -8,20 +8,13 @@ on:
 
 jobs:
 
-  analyze:
+  codeql-scan:
     runs-on: ubuntu-latest
     permissions:
       security-events: write
       packages: read
       actions: read
       contents: read
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - language: 'csharp'
-          build-mode: 'autobuild'
 
     steps:
     - name: Checkout repository
@@ -35,13 +28,70 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
+        languages: csharp
+        build-mode: autobuild
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
 
-  unit-tests:
-    uses: ./.github/workflows/sub_unit_tests.yml
-    with:
-      coverage: true
+  sonar-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'microsoft'
+
+      - name: Cache SonarQube Cloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache SonarQube Cloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install SonarQube Cloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ./.sonar/scanner
+          dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
+          dotnet tool install --global dotnet-coverage
+
+      - name: Pull database images for unit tests
+        run: |
+          docker pull mcr.microsoft.com/mssql/server:latest
+          docker pull postgres:latest
+
+      - name: Build and begin SonarCloud analysis
+        run: |
+          ./.sonar/scanner/dotnet-sonarscanner begin \
+            /k:"${{ vars.SONAR_PROJ }}" \
+            /o:"${{ vars.SONAR_ORG }}" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="${{ vars.SONAR_HOST }}" \
+            /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+
+      - name: Build solution
+        run: dotnet build --configuration Release
+
+      - name: Run tests with coverage
+        run: dotnet-coverage collect "dotnet test --no-build --configuration Release" -f xml -o "coverage.xml"
+
+      - name: End SonarCloud analysis
+        run: ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
