@@ -11,8 +11,8 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
             $"--metadata-schema=log",
             $"--metadata-table=MigrationHistory",
             $"--connection-string={_container.ConnectionString}",
-            $"--migration-paths=Resources/PostgeSQL/Migrations;Resources/PostgeSQL/Repeatable",
-            $"--snapshot-paths=Resources/PostgeSQL/Snapshots",
+            $"--migration-paths=Resources/PostgreSQL/Migrations;Resources/PostgreSQL/Repeatable",
+            $"--snapshot-paths=Resources/PostgreSQL/Snapshots",
         ];
 
         [Fact]
@@ -141,7 +141,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
                 $"--metadata-schema=log",
                 $"--metadata-table=MigrationHistory",
                 $"--connection-string={_container.ConnectionString}",
-                $"--migration-paths=Resources/PostgeSQL/Migrations",
+                $"--migration-paths=Resources/PostgreSQL/Migrations",
                 $"--target-version=1.0.0",
                 $"upgrade",
             ];

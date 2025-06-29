@@ -5,5 +5,5 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
 	RETURN (SELECT COUNT(*) FROM "Table1");
-END
+END;
 $$;
