@@ -1,19 +1,19 @@
-﻿-- create simple function count table record for mssql
-CREATE FUNCTION [dbo].[CountTableRecords] ()
-RETURNS INT
-AS
+﻿-- create simple function count table record for postgresql
+CREATE FUNCTION "CountTableRecords"()
+RETURNS INTEGER 
+LANGUAGE plpgsql
+AS $$
 BEGIN
-	DECLARE @Count INT;
-	SELECT @Count = COUNT(*) FROM [dbo].[Table1];
-	RETURN @Count;
+	RETURN (SELECT COUNT(*) FROM "Table1");
 END
-GO
+$$;
 
--- create a simple procedure for mssql
-CREATE PROCEDURE [dbo].[Procedure1]
-AS
+-- create a simple procedure for postgresql
+CREATE PROCEDURE "Procedure1"()
+LANGUAGE plpgsql
+AS $$
 BEGIN
-	SELECT [Id], [Name], [CreatedAt]
-	FROM [dbo].[Table1]
-END
-GO
+    -- Insert a record into Table2
+    INSERT INTO "Table2" ("Name", "CreatedAt") VALUES ('New Record', CURRENT_TIMESTAMP);
+END;
+$$;

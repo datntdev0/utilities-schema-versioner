@@ -1,6 +1,8 @@
 ﻿using datntdev.SchemaVersioner.Interfaces;
 using datntdev.SchemaVersioner.Models;
 using System;
+using System.Data;
+using System.Linq;
 
 namespace datntdev.SchemaVersioner.DbEngines
 {
@@ -37,22 +39,70 @@ namespace datntdev.SchemaVersioner.DbEngines
 
         public void DeleteMigrationRecord(string version)
         {
-            throw new NotImplementedException();
+            var sql = $@"
+                DELETE FROM ""{_settings.MetadataSchema}"".""{_settings.MetadataTable}"" 
+                WHERE version = '{version}' 
+                AND type = {(int)MigrationType.Versioned};";
+            _baseConnector.ExecuteNonQuery(sql);
         }
 
         public void DropMetadataTable()
         {
-            throw new NotImplementedException();
+            var sql = $@"DROP TABLE IF EXISTS ""{_settings.MetadataSchema}"".""{_settings.MetadataTable}"";";
+            _baseConnector.ExecuteNonQuery(sql);
         }
 
         public void EraseDatabase()
         {
-            throw new NotImplementedException();
+            var getTablesAndViews = $@"
+                SELECT * FROM information_schema.tables
+                WHERE ""table_schema"" <> 'pg_catalog' AND ""table_schema"" <> 'information_schema'";
+            var dropSqls = _baseConnector.ExecuteQuery(getTablesAndViews).AsEnumerable()
+                .OrderByDescending(x => x.Field<string>("table_type"))
+                .Select(x => new
+                {
+                    type = x.Field<string>("table_type")!.Replace("BASE ", ""),
+                    name = x.Field<string>("table_name"),
+                    schema = x.Field<string>("table_schema"),
+                })
+                .Select(x => $@"DROP {x.type.ToUpper()} ""{x.schema}"".""{x.name}"";");
+
+            if (dropSqls.Any()) _baseConnector.ExecuteNonQuery(string.Join(";", dropSqls));
+
+            var getRoutines = $@"
+                SELECT * FROM information_schema.routines
+                WHERE ""specific_schema"" <> 'pg_catalog' AND ""specific_schema"" <> 'information_schema'";
+            var dropRoutinesSqls = _baseConnector.ExecuteQuery(getRoutines).AsEnumerable()
+                .OrderBy(x => x.Field<string>("routine_type"))
+                .Select(x => new
+                {
+                    type = x.Field<string>("routine_type"),
+                    name = x.Field<string>("routine_name"),
+                    schema = x.Field<string>("specific_schema"),
+                })
+                .Select(x => $@"DROP {x.type!.ToUpper()} ""{x.schema}"".""{x.name}"";");
+
+            if (dropRoutinesSqls.Any()) _baseConnector.ExecuteNonQuery(string.Join(";", dropRoutinesSqls));
         }
 
         public Migration[] GetMetadataTable()
         {
-            throw new NotImplementedException();
+            var sql = $@"
+                SELECT type, version, description, checksum, installed_by, installed_on, success 
+                FROM ""{_settings.MetadataSchema}"".""{_settings.MetadataTable}"" 
+                ORDER BY installed_on DESC;";
+
+            var dataTable = _baseConnector.ExecuteQuery(sql);
+            return dataTable.AsEnumerable().Select(row => new Migration
+            {
+                Type = (MigrationType)row.Field<int>("type"),
+                Version = row.Field<string>("version")!,
+                Description = row.Field<string>("description")!,
+                Checksum = row.Field<string>("checksum")!,
+                InstalledBy = row.Field<string>("installed_by")!,
+                InstalledAt = row.Field<DateTime>("installed_on"),
+                IsSuccessful = row.Field<bool>("success")
+            }).ToArray();
         }
 
         public Snapshot[] GetObjectSnapshots()
@@ -63,7 +113,7 @@ namespace datntdev.SchemaVersioner.DbEngines
         public void InsertMigrationRecord(Migration x)
         {
             var sql = $@"
-                INSERT INTO {_settings.MetadataSchema}.""{_settings.MetadataTable}""
+                INSERT INTO ""{_settings.MetadataSchema}"".""{_settings.MetadataTable}""
                 (type, version, description, checksum, installed_by, success) 
                 VALUES 
                 (

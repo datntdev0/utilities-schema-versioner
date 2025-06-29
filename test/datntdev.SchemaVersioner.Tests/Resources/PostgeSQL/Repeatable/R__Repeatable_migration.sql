@@ -1,17 +1,9 @@
 -- create a simple view in mssql
-DROP VIEW IF EXISTS [dbo].[View1_1];
-GO;
-CREATE VIEW [dbo].[View1_1]
-AS
-SELECT [Id], [Name], [CreatedAt]
-FROM [dbo].[Table1];
-GO;
+DROP VIEW IF EXISTS "View1_1";
+CREATE VIEW "View1_1" AS
+SELECT "Id", "Name", "CreatedAt" FROM "Table1";
 
 -- create a simple view in mssql
-DROP VIEW IF EXISTS [dbo].[View2_1];
-GO;
-CREATE VIEW [dbo].[View2_1]
-AS
-SELECT [Id], [Name], [CreatedAt]
-FROM [dbo].[Table2];
-GO;
+DROP VIEW IF EXISTS "View2_1";
+CREATE VIEW "View2_1" AS
+SELECT "Id", "Name", "CreatedAt" FROM "Table2";

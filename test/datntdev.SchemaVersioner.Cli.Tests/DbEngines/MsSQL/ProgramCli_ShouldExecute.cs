@@ -249,6 +249,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
         public void _13_ShouldDowngrade_Successfully_DowngradeTheLatestVersion() 
         {
             // Arrange
+
             string[] args = [.. _defaultArgs, "downgrade"];
 
             // Act

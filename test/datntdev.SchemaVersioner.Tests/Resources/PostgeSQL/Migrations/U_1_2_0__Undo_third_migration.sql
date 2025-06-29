@@ -1,4 +1,4 @@
 -- drop procedure if exists
-DROP PROCEDURE IF EXISTS [dbo].[Procedure1];
+DROP PROCEDURE IF EXISTS "Procedure1";
 -- drop function if exists
-DROP FUNCTION IF EXISTS [dbo].[CountTableRecords];
+DROP FUNCTION IF EXISTS "CountTableRecords";
