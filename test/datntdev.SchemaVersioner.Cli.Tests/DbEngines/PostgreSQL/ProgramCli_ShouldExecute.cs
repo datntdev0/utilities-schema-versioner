@@ -199,6 +199,17 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
         }
 
         [Fact]
+        public void _11_ShouldSnapshot_RisedException_NotSupportedException()
+        {
+            // Arrange
+            string[] args = [.. _defaultArgs, "snapshot"];
+
+            // Act & Assert
+            var ex = Assert.Throws<NotSupportedException>(() => Program.Main(args));
+            Assert.Equal("Snapshot feature is not supported for PostgreSQL.", ex.Message);
+        }
+
+        [Fact]
         public void _13_ShouldDowngrade_Successfully_DowngradeTheLatestVersion()
         {
             // Arrange

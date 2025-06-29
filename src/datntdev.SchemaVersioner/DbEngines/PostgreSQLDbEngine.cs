@@ -107,7 +107,7 @@ namespace datntdev.SchemaVersioner.DbEngines
 
         public Snapshot[] GetObjectSnapshots()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("Snapshot feature is not supported for PostgreSQL.");
         }
 
         public void InsertMigrationRecord(Migration x)
