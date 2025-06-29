@@ -1,5 +1,7 @@
 # datntdev - SchemaVersioner
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=datntdev0_utilities-schema-versioner&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=datntdev0_utilities-schema-versioner) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=datntdev0_utilities-schema-versioner&metric=coverage)](https://sonarcloud.io/summary/new_code?id=datntdev0_utilities-schema-versioner) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=datntdev0_utilities-schema-versioner&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=datntdev0_utilities-schema-versioner)
+
 `datntdev.SchemaVersioner` provides a robust solution for database schema management, ensuring that changes are applied consistently across different environments. It supports versioned migrations to track incremental changes and repeatable migrations for objects like views or stored procedures that might be updated frequently. The tool is designed to work on various database engines.
 
 ## Core Components
@@ -17,6 +19,15 @@
 - **Migrate to Latest**: Apply all pending migrations to bring the database to the most recent version.
 - **Schema Snapshot Generation**: Create scripts representing the current schema for supported databases.
 - **CLI Tool for CI/CD Pipeline**: Easily script and automate database migration processes.
+
+### Supported Database Engines
+
+Database | Initialize Command | Erase Command | Validate Command | Repair Command | Upgrade Command | Downgrade Command | Snapshot Command
+--- | --- | --- | --- | --- | --- | --- | ---
+SQLite | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
+MsSQL | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
+Ms Fabric | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
+PostgreSQL | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌
 
 ## Getting Started
 
