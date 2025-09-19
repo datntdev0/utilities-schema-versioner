@@ -1,5 +1,5 @@
 -- create a simple procedure for postgresql
-CREATE PROCEDURE "Procedure1"()
+CREATE OR REPLACE PROCEDURE "Procedure1"()
 LANGUAGE plpgsql
 AS $$
 BEGIN

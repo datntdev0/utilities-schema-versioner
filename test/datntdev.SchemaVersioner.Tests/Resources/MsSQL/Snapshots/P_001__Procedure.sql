@@ -1,5 +1,5 @@
 -- create a simple procedure for mssql
-CREATE PROCEDURE [dbo].[Procedure1]
+CREATE OR ALTER PROCEDURE [dbo].[Procedure1]
 AS
 BEGIN
 	SELECT [Id], [Name], [CreatedAt]

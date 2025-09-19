@@ -1,5 +1,5 @@
 -- create simple function count table record for postgresql
-CREATE FUNCTION "CountTableRecords"()
+CREATE OR REPLACE FUNCTION "CountTableRecords"()
 RETURNS INTEGER 
 LANGUAGE plpgsql
 AS $$

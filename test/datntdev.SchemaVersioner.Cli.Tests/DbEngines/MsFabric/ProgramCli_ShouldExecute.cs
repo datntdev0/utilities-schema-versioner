@@ -6,7 +6,6 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
     public class ProgramCli_ShouldExecute(DbConnection connection)
         : ActualConnectionFixture<DbConnection>(connection), IClassFixture<DbConnection>
     {
-        // Add at the top of the file, inside the namespace but outside the class
         public const bool SkipTests = true;
 
         [Fact(Skip = SkipTests ? "Should setup Fabric Connection from Cloud" : null)]
@@ -287,7 +286,9 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsFabric
                 "--metadata-schema", "log",
                 "--metadata-table", "MigrationHistory",
                 "--connection-string", _dbConnection.ConnectionString,
+                "--snapshot-paths", "Resources/MsFabric/Snapshots",
                 "--migration-paths", "Resources/MsFabric/Migrations;Resources/MsFabric/Repeatable",
+                "--snapshots-as-repeatable", "Function;Procedure",
                 "upgrade",
             };
             // Act

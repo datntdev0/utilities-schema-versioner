@@ -180,13 +180,18 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
         public void _09_ShouldUpgrade_Successfully_UpgradeToLatestVersion()
         {
             // Arrange
-            string[] args = [.. _defaultArgs, "upgrade"];
-           
+            string[] args = [.. _defaultArgs, "--snapshots-as-repeatable", "Function;Procedure", "upgrade"];
+
             // Act
             Program.Main(args);
 
             // Assert
             AssertLatestSchema();
+            var collection = GetMetadata();
+            Assert.Contains(collection, x => x.description == "F_001__Function.sql"
+                && x.installed_by == "sa");
+            Assert.Contains(collection, x => x.description == "P_001__Procedure.sql"
+                && x.installed_by == "sa");
         }
 
         [Fact]

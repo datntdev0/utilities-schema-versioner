@@ -178,13 +178,18 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
         public void _09_ShouldUpgrade_Successfully_UpgradeToLatestVersion()
         {
             // Arrange
-            string[] args = [.. _defaultArgs, "upgrade"];
+            string[] args = [.. _defaultArgs, "--snapshots-as-repeatable", "Function;Procedure", "upgrade"];
 
             // Act
             Program.Main(args);
 
             // Assert
             AssertLatestSchema();
+            var collection = GetMetadata();
+            Assert.Contains(collection, x => x.description == "F_001__Function.sql"
+                && x.installed_by == "postgres");
+            Assert.Contains(collection, x => x.description == "P_001__Procedure.sql"
+                && x.installed_by == "postgres");
         }
 
         [Fact]
@@ -259,7 +264,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
             Assert.Empty(collection);
 
             collection = GetMetadata();
-            Assert.Empty(collection);
+            Assert.DoesNotContain(collection, x => x.type == "1");
         }
 
         [Fact]
@@ -294,6 +299,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
             return ExecuteQuery(@"SELECT * FROM ""log"".""MigrationHistory""").AsEnumerable()
                 .Select(row => new
                 {
+                    type = row["type"].ToString(),
                     version = row["version"].ToString(),
                     description = row["description"].ToString(),
                     installed_by = row["installed_by"].ToString(),
