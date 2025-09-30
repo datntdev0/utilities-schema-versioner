@@ -8,5 +8,6 @@
         public string[] MigrationPaths { get; set; } = ["Migrations"];
         public string[] SnapshotPaths { get; set; } = ["Snapshots"];
         public string SnapshotOutputPath { get; set; } = "SnapshotsOutput";
+        public string[] SnapshotsAsRepeatable { get; set; } = []; // "Function","Procedure","View"
     }
 }

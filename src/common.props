@@ -6,7 +6,6 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/datntdev/utilities-schema-versioner</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<Version>1.1.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

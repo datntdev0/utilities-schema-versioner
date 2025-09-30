@@ -7,6 +7,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using System;
 using System.Data;
+using System.IO;
 using System.Linq;
 
 namespace datntdev.SchemaVersioner.DbEngines
@@ -206,6 +207,47 @@ namespace datntdev.SchemaVersioner.DbEngines
             _baseConnector.ExecuteNonQuery(sql);
         }
 
+        public void UpsertRepeatableRecord(Migration migration)
+        {
+            if (migration.Type != MigrationType.Repeatable) return;
+
+            var sql = $@"
+                IF EXISTS (
+                    SELECT 1 
+                    FROM [{_settings.MetadataSchema}].[{_settings.MetadataTable}] 
+                    WHERE type = {(int)migration.Type} 
+                    AND description = '{migration.Description}'
+                )
+                BEGIN
+                    UPDATE [{_settings.MetadataSchema}].[{_settings.MetadataTable}]
+                    SET 
+                        checksum = '{migration.ContentChecksum}', 
+                        installed_by = SUSER_SNAME(), 
+                        installed_on = GETDATE(), 
+                        success = 1
+                    WHERE 
+                        type = {(int)migration.Type} 
+                        AND description = '{migration.Description}';
+                END
+                ELSE
+                BEGIN
+                    INSERT INTO [{_settings.MetadataSchema}].[{_settings.MetadataTable}] 
+                    (id, type, version, description, checksum, installed_by, installed_on, success) 
+                    VALUES 
+                    (
+                        CAST(FORMAT(GETDATE(), 'yyyyMMddHHmmssfff') AS BIGINT),
+                        {(int)migration.Type}, 
+                        '{migration.Version}',
+                        '{migration.Description}', 
+                        '{migration.ContentChecksum}', 
+                        SUSER_SNAME(),
+                        GETDATE(),
+                        1
+                    );
+                END;";
+            _baseConnector.ExecuteNonQuery(sql);
+        }
+
         public bool IsMetadataTableExists()
         {
             var sql = $@"
@@ -214,5 +256,6 @@ namespace datntdev.SchemaVersioner.DbEngines
                 WHERE TABLE_SCHEMA = '{_settings.MetadataSchema}' AND TABLE_NAME = '{_settings.MetadataTable}';";
             return _baseConnector.ExecuteScalar<int>(sql) == 1;
         }
+
     }
 }

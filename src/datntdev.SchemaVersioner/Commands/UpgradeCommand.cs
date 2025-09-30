@@ -58,13 +58,19 @@ namespace datntdev.SchemaVersioner.Commands
 
             // Run repeatable migrations
             _logger.LogInformation("Running repeatable migrations...");
-            var repeatableMigrations = scripts
+            var repeatableRecords = _dbEngine.GetMetadataTable()
                 .Where(x => x.Type == MigrationType.Repeatable)
+                .ToDictionary(x => x.Description, x => x.Checksum);
+            var repeatableScripts = scripts
+                .Where(x => x.Type == MigrationType.Repeatable)
+                .Where(x => !repeatableRecords.ContainsKey(x.Description)
+                    || repeatableRecords[x.Description] != x.ContentChecksum)
                 .ToList();
-            repeatableMigrations.ForEach(migration =>
+            repeatableScripts.ForEach(migration =>
             {
                 _logger.LogInformation("Running repeatable migration {0} - {1}", migration.Version, migration.Description);
                 _baseConnector.ExecuteComplexContent(migration.Content);
+                _dbEngine.UpsertRepeatableRecord(migration);
             });
 
             _logger.LogInformation("Database upgraded successfully to version {targetVersion} with {Count} migrations.",

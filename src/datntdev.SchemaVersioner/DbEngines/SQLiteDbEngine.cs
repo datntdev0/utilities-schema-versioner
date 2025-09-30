@@ -123,6 +123,29 @@ namespace datntdev.SchemaVersioner.DbEngines
             _baseConnector.ExecuteNonQuery(sql);
         }
 
+        public void UpsertRepeatableRecord(Migration migration)
+        {
+            var sql = $@"
+                INSERT INTO {_settings.MetadataTable} 
+                (type, version, description, checksum, installed_by, success) 
+                VALUES 
+                (
+                    {(int)MigrationType.Repeatable}, 
+                    '{migration.Version}', 
+                    '{migration.Description}', 
+                    '{migration.ContentChecksum}', 
+                    '', 
+                    1
+                )
+                ON CONFLICT(version) 
+                DO UPDATE SET 
+                    description = '{migration.Description}', 
+                    checksum = '{migration.ContentChecksum}', 
+                    installed_by = '', 
+                    success = 1;";
+            _baseConnector.ExecuteNonQuery(sql);
+        }
+
         public bool IsMetadataTableExists()
         {
             var sql = @$"

@@ -4,8 +4,8 @@ on:
   workflow_call:
     inputs:
       version:
-        description: 'Package version (default: from csproj)'
-        required: false
+        description: 'Package version (default: from auto_cd)'
+        required: true
         type: string
       prerelease:
         description: 'Publish as prerelease with version suffix'
@@ -30,24 +30,20 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Build Solution
-        run: dotnet build --configuration Release
-
       - name: Pack NuGet package (prerelease)
         if: ${{ inputs.prerelease }}
         run: |
-          VERSION_SUFFIX="-beta.$(date +'%Y%m%d')"
+          VERSION_SUFFIX="-prerelease.$(date +'%Y%m%d')"
+          echo Building package with suffix version: ${{ inputs.version }}$VERSION_SUFFIX
           dotnet pack src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj \
-          --configuration Release --output ./nupkg --version-suffix $VERSION_SUFFIX
+          --configuration Release --output ./nupkg /p:PackageVersion=${{ inputs.version }}$VERSION_SUFFIX
 
       - name: Pack NuGet package (versioned)
+        if: ${{ inputs.version && !inputs.prerelease }}
         run: |
           if [ -n "${{ inputs.version }}" ]; then
             dotnet pack src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj \
             --configuration Release --output ./nupkg /p:PackageVersion=${{ inputs.version }}
-          else
-            dotnet pack src/datntdev.SchemaVersioner/datntdev.SchemaVersioner.csproj \
-            --configuration Release --output ./nupkg
           fi
 
       - name: Upload NuGet package as artifact

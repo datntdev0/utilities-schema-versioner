@@ -110,21 +110,65 @@ namespace datntdev.SchemaVersioner.DbEngines
             throw new NotSupportedException("Snapshot feature is not supported for PostgreSQL.");
         }
 
-        public void InsertMigrationRecord(Migration x)
+        public void InsertMigrationRecord(Migration migration)
         {
             var sql = $@"
                 INSERT INTO ""{_settings.MetadataSchema}"".""{_settings.MetadataTable}""
                 (type, version, description, checksum, installed_by, success) 
                 VALUES 
                 (
-                    {(int)x.Type}, 
-                    '{x.Version}', 
-                    '{x.Description}', 
-                    '{x.ContentChecksum}', 
+                    {(int)migration.Type}, 
+                    '{migration.Version}', 
+                    '{migration.Description}', 
+                    '{migration.ContentChecksum}', 
                     current_user, 
                     true
                 );";
             _baseConnector.ExecuteNonQuery(sql);
+        }
+
+        public void UpsertRepeatableRecord(Migration migration)
+        {
+            if (migration.Type != MigrationType.Repeatable) return;
+
+            // Check if a record with the same description already exists
+            var checkSql = $@"
+                SELECT COUNT(*) 
+                FROM ""{_settings.MetadataSchema}"".""{_settings.MetadataTable}"" 
+                WHERE description = '{migration.Description}';";
+
+            var exists = _baseConnector.ExecuteScalar<long>(checkSql) > 0;
+
+            if (exists)
+            {
+                // Update the existing record
+                var updateSql = $@"
+                    UPDATE ""{_settings.MetadataSchema}"".""{_settings.MetadataTable}""
+                    SET 
+                        checksum = '{migration.ContentChecksum}',
+                        installed_by = current_user,
+                        success = true,
+                        installed_on = CURRENT_TIMESTAMP
+                    WHERE description = '{migration.Description}';";
+                _baseConnector.ExecuteNonQuery(updateSql);
+            }
+            else
+            {
+                // Insert a new record
+                var insertSql = $@"
+                    INSERT INTO ""{_settings.MetadataSchema}"".""{_settings.MetadataTable}""
+                    (type, version, description, checksum, installed_by, success) 
+                    VALUES 
+                    (
+                        {(int)migration.Type}, 
+                        '{migration.Version}', 
+                        '{migration.Description}', 
+                        '{migration.ContentChecksum}', 
+                        current_user, 
+                        true
+                    );";
+                _baseConnector.ExecuteNonQuery(insertSql);
+            }
         }
 
         public bool IsMetadataTableExists()

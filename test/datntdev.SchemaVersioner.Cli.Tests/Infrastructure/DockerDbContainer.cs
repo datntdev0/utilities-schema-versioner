@@ -42,7 +42,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
                 {
                     PortBindings = new Dictionary<string, IList<PortBinding>>
                     {
-                        { ContainerExposePort, new List<PortBinding> { new() { HostIP = "localhost", HostPort = ContainerHostPort } } }
+                        { ContainerExposePort, new List<PortBinding> { new() { HostIP = "", HostPort = ContainerHostPort } } }
                     }
                 }
             });
@@ -50,24 +50,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.Infrastructure
             await _client.Containers.StartContainerAsync(newContainer.ID, null);
         }
 
-        public virtual async Task WaitConnection()
-        {
-            var timeout = TimeSpan.FromSeconds(30);
-            var startTime = DateTime.UtcNow;
-            while (DateTime.UtcNow - startTime < timeout)
-            {
-                try
-                {
-                    DbConnection.Open();
-                    return; // Connection successful
-                }
-                catch (Exception)
-                {
-                    await Task.Delay(1000); // Wait before retrying
-                }
-            }
-            throw new TimeoutException($"Could not connect to the database within {timeout.TotalSeconds} seconds.");
-        }
+        public virtual Task WaitConnection() => Task.CompletedTask;
 
         public async Task InitializeAsync()
         {

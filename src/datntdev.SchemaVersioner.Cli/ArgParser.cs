@@ -17,6 +17,7 @@ namespace datntdev.SchemaVersioner.Cli
                 ["--snapshot-paths"] = val => settings.SnapshotPaths = val.Split(';', ','),
                 ["--target-version"] = val => settings.TargetVersion = val,
                 ["--snapshot-output-path"] = val => settings.SnapshotOutputPath = val,
+                ["--snapshots-as-repeatable"] = val => settings.SnapshotsAsRepeatable = val.Split(';', ',')
             };
 
             for (int i = 0; i < args.Length; i++)

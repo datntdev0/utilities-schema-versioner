@@ -1,5 +1,5 @@
 -- create simple function count table record for mssql
-CREATE FUNCTION [dbo].[CountTableRecords] ()
+CREATE OR ALTER FUNCTION [dbo].[CountTableRecords] ()
 RETURNS INT
 AS
 BEGIN

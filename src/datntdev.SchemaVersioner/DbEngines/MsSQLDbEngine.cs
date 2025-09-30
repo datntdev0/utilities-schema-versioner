@@ -8,6 +8,7 @@ using Microsoft.SqlServer.Management.Smo;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 
 namespace datntdev.SchemaVersioner.DbEngines
@@ -186,6 +187,45 @@ namespace datntdev.SchemaVersioner.DbEngines
                     SUSER_SNAME(),
                     1
                 );";
+            _baseConnector.ExecuteNonQuery(sql);
+        }
+
+        public void UpsertRepeatableRecord(Migration migration)
+        {
+            if (migration.Type != MigrationType.Repeatable) return;
+
+            var sql = $@"
+                IF EXISTS (
+                    SELECT 1 
+                    FROM [{_settings.MetadataSchema}].[{_settings.MetadataTable}] 
+                    WHERE type = {(int)migration.Type} 
+                    AND description = '{migration.Description}'
+                )
+                BEGIN
+                    UPDATE [{_settings.MetadataSchema}].[{_settings.MetadataTable}]
+                    SET 
+                        checksum = '{migration.ContentChecksum}', 
+                        installed_by = SUSER_SNAME(), 
+                        installed_on = GETDATE(), 
+                        success = 1
+                    WHERE 
+                        type = {(int)migration.Type} 
+                        AND description = '{migration.Description}';
+                END
+                ELSE
+                BEGIN
+                    INSERT INTO [{_settings.MetadataSchema}].[{_settings.MetadataTable}] 
+                    (type, version, description, checksum, installed_by, success) 
+                    VALUES 
+                    (
+                        {(int)migration.Type}, 
+                        '{migration.Version}',
+                        '{migration.Description}', 
+                        '{migration.ContentChecksum}', 
+                        SUSER_SNAME(),
+                        1
+                    );
+                END;";
             _baseConnector.ExecuteNonQuery(sql);
         }
 
