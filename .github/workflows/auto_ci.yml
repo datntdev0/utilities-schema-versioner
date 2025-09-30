@@ -84,7 +84,6 @@ jobs:
             /k:"${{ vars.SONAR_PROJ }}" \
             /o:"${{ vars.SONAR_ORG }}" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.host.url="${{ vars.SONAR_HOST }}" \
             /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
 
       - name: Build solution
