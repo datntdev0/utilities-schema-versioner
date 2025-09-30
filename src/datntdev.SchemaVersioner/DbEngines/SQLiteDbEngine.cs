@@ -154,7 +154,5 @@ namespace datntdev.SchemaVersioner.DbEngines
                 WHERE type='table' AND tbl_name='{_settings.MetadataTable}';";
             return _baseConnector.ExecuteScalar<long>(sql) == 1;
         }
-
-        
     }
 }
