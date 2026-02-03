@@ -19,14 +19,14 @@
         Repeatable = 3,
     }
 
-    internal enum SnapshotType
+    public enum SnapshotType
     {
         None = 0,
         Schema = 1,
         Table = 2,
         View = 3,
-        Procedure = 4,
-        Function = 5,
+        Function = 4,
+        Procedure = 5,
     }
 
     public enum DbEngineType

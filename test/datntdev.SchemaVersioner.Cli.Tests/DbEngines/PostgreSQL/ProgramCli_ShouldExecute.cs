@@ -132,7 +132,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
             Assert.Empty(collection);
         }
 
-        [Fact]
+        [Fact(Skip = "Not supporting upgrade with TargetVersion")]
         public void _08_ShouldUpgrade_Successfully_UpgradeToTargetVersion()
         {
             // Arrange
@@ -192,7 +192,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.PostgreSQL
                 && x.installed_by == "postgres");
         }
 
-        [Fact]
+        [Fact(Skip = "Not supporting upgrade with TargetVersion")]
         public void _10_ShouldUpgrade_RisedException_WhenTargetVersionNotFound()
         {
             // Arrange

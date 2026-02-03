@@ -2,7 +2,6 @@
 using datntdev.SchemaVersioner.Loaders;
 using datntdev.SchemaVersioner.Models;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Linq;
 
 namespace datntdev.SchemaVersioner.Commands
@@ -29,29 +28,18 @@ namespace datntdev.SchemaVersioner.Commands
 
             var migrationScripts = scripts
                 .Where(x => x.Type == MigrationType.Versioned)
-                .OrderBy(x => x.Version).ToList();
-
-            // Assign latest and target versions
-            var latestVersion = migrationRecords.LastOrDefault()?.Version ?? string.Empty;
-            var targetVersion = string.IsNullOrEmpty(_settings.TargetVersion) ?
-                migrationScripts.LastOrDefault()?.Version : _settings.TargetVersion;
-
-            // If target version is not specified, upgrade to the latest version
-            if (migrationScripts.Select(x => x.Version).Contains(targetVersion) == false)
-            {
-                throw new InvalidOperationException($"Target version '{targetVersion}' does not exist in migration scripts.");
-            }
+                .ToList();
 
             // Determine migrations to run pending migrations
-            _logger.LogInformation("Running pending migrations to the target version {0}", targetVersion);
+            _logger.LogInformation("Running pending migrations in order of version number");
             var runningMigrations = migrationScripts
-                .Where(x => string.Compare(x.Version, latestVersion) > 0
-                    && string.Compare(x.Version, targetVersion) <= 0)
+                .Where(x => !migrationRecords.Any(r => r.Version == x.Version))
                 .ToList();
 
             runningMigrations.ForEach(migration =>
             {
-                _logger.LogInformation("Running migration {0} - {1}", migration.Version, migration.Description);
+                _logger.LogInformation("Running migration {Version} - {Description}",
+                    migration.Version, migration.Description);
                 _baseConnector.ExecuteComplexContent(migration.Content);
                 _dbEngine.InsertMigrationRecord(migration);
             });
@@ -68,13 +56,14 @@ namespace datntdev.SchemaVersioner.Commands
                 .ToList();
             repeatableScripts.ForEach(migration =>
             {
-                _logger.LogInformation("Running repeatable migration {0} - {1}", migration.Version, migration.Description);
+                _logger.LogInformation("Running repeatable migration {Version} - {Description}",
+                    migration.Version, migration.Description);
                 _baseConnector.ExecuteComplexContent(migration.Content);
                 _dbEngine.UpsertRepeatableRecord(migration);
             });
 
-            _logger.LogInformation("Database upgraded successfully to version {targetVersion} with {Count} migrations.",
-                targetVersion, runningMigrations.Count);
+            _logger.LogInformation("Database upgraded successfully to latest version with {Count} migrations.",
+                runningMigrations.Count);
 
             return new CommandOutput<CommandOutputUpgrade>(new CommandOutputUpgrade());
         }

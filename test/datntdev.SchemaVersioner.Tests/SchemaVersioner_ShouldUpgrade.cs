@@ -8,7 +8,7 @@ namespace datntdev.SchemaVersioner.Tests
     {
         protected override string SQLiteConnectionString => "Data Source=sqlite_upgrade;Mode=Memory;Cache=Shared";
 
-        [Fact]
+        [Fact(Skip = "Not supporting upgrade with TargetVersion")]
         public void ShouldUpgrade_1_Successfully_UpgradeToTargetVersion()
         {
             // Arrange
@@ -84,7 +84,7 @@ namespace datntdev.SchemaVersioner.Tests
                 && row.Field<string>("tbl_name") == "View2");
         }
 
-        [Fact]
+        [Fact(Skip = "Not supporting upgrade with TargetVersion")]
         public void ShouldUpgrade_3_RisedException_WhenTargetVersionNotExists()
         {
             // Arrange

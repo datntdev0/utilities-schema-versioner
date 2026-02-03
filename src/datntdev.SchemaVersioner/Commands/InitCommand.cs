@@ -21,8 +21,7 @@ namespace datntdev.SchemaVersioner.Commands
 
             // Load schema snapshots from snapshot folders
             _logger.LogInformation("Running all database schema scripts...");
-            var snapshots = new SnapshotLoader().Load(_settings)
-                .OrderBy(x => x.Type).ThenBy(x => x.Order).ToList();
+            var snapshots = new SnapshotLoader().Load(_settings).ToList();
 
             // Run all schema snapshots to init new database
             snapshots.ForEach(x =>

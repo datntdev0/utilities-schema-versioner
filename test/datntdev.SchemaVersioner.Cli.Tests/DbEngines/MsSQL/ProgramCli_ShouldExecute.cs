@@ -132,7 +132,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
             Assert.Empty(collection);
         }
 
-        [Fact]
+        [Fact(Skip = "Not supporting upgrade with TargetVersion")]
         public void _08_ShouldUpgrade_Successfully_UpgradeToTargetVersion()
         {
             // Arrange
@@ -194,7 +194,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests.DbEngines.MsSQL
                 && x.installed_by == "sa");
         }
 
-        [Fact]
+        [Fact(Skip = "Not supporting upgrade with TargetVersion")]
         public void _10_ShouldUpgrade_RisedException_WhenTargetVersionNotExists()
         {
             // Arrange

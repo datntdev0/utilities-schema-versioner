@@ -18,7 +18,7 @@ namespace datntdev.SchemaVersioner.Models
         public string Content => File.ReadAllText(FilePath);
 
         public string ContentChecksum => System.Security.Cryptography.MD5.Create()
-                .ComputeHash(System.Text.Encoding.UTF8.GetBytes($"{Path.GetFileName(FilePath)}\n{Content}"))
-                .Aggregate(string.Empty, (current, b) => current + b.ToString("x2"));
+            .ComputeHash(System.Text.Encoding.UTF8.GetBytes($"{Path.GetFileName(FilePath)}\n{Content}"))
+            .Aggregate(string.Empty, (current, b) => current + b.ToString("x2"));
     }
 }

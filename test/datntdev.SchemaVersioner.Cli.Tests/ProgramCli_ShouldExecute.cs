@@ -178,7 +178,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
             Program.Main(args);
         }
 
-        [Fact]
+        [Fact(Skip = "Not supporting upgrade with TargetVersion")]
         public void _08_ShouldUpgrade_Successfully_UpgradeToTargetVersion()
         {
             // Arrange
@@ -256,7 +256,7 @@ namespace datntdev.SchemaVersioner.Cli.Tests
                 && row.Field<string>("tbl_name") == "View2");
         }
 
-        [Fact]
+        [Fact(Skip = "Not supporting upgrade with TargetVersion")]
         public void _10_ShouldUpgrade_RisedException_WhenTargetVersionNotExists()
         {
             // Arrange

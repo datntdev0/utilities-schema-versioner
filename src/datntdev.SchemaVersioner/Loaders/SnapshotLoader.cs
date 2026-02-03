@@ -12,6 +12,7 @@ namespace datntdev.SchemaVersioner.Loaders
                 .Where(Directory.Exists)
                 .SelectMany(x => Directory.GetFiles(x, "*.sql", SearchOption.AllDirectories))
                 .Select(x => ParseSnapshot(Path.GetFullPath(x)))
+                .OrderBy(x => x.Type).ThenBy(x => x.Order)
                 .ToArray();
         }
 
